@@ -1,5 +1,4 @@
-<!-- here we create the card that represents a given note. The note is a markdown document, and it should show up as rendered in the card. -->
-<mat-card class="note-card">
+<mat-card class="note-card" *ngIf="note">
   <mat-card-title>{{note.name}}</mat-card-title>
   <mat-card-content>
     <!-- We need to render the Markdown in the card. We can use the MarkdownPipe to do this. -->

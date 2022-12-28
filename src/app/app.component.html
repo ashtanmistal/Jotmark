@@ -42,20 +42,32 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
+<div class="main-ui" style="display: flex; flex-wrap: wrap;">
+  <!-- include each note as a separate mat-card -->
+  <!-- when it is clicked it should call the selectNote() function -->
+  <!-- the mat-card should have a mat-card-title with the note's title -->
+  <!-- and the mat-card-content should have the note's content -->
 
+  <ng-container *ngFor="let note of notes">
+    <mat-card class="note-card" (click)="selectNote(note)">
+      <mat-card-title>{{note.name}}</mat-card-title>
+      <!-- render the note content as markdown -->
+      <mat-card-content>
+        <!-- removed the markdown pipe because it was causing issues with the note content -->
+        <div [innerHTML]="note.content.slice(0, 1000)"></div>
+      </mat-card-content>
+    </mat-card>
+  </ng-container>
+</div>
+
+<!-- TODO the below is what needs to be implemented. You can use the existing code above as a reference. -->
 <!--<div class="main-ui">-->
 <!--  <ng-container *ngFor="let note of notes">-->
-<!--    <mat-card class="note-card">-->
-<!--      <mat-card-title>{{note.name}}</mat-card-title>-->
-<!--      <mat-card-content>-->
-<!--        &lt;!&ndash; only show the first 100 characters of the note &ndash;&gt;-->
-<!--        <p>{{note.content | slice:0:100}}</p>-->
-<!--      </mat-card-content>-->
-<!--    </mat-card>-->
+<!--    <app-note [note]="note" (noteChange)="noteChanged($event)"></app-note>-->
 <!--  </ng-container>-->
 <!--</div>-->
 <!-- main UI: should make a card for every note -->
 <!-- when the user clicks on a note, it should open in the editor -->
 <!-- the editor is a separate component, and should be placed in the editor component's template -->
 <!-- include the editor component in the main UI -->
-<app-editor></app-editor>
+

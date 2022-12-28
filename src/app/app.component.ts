@@ -8,7 +8,17 @@ import { Note } from './note/note';
 })
 export class AppComponent {
   title = 'Jotmark';
-  notes: Note[] = [];
+  notes: Note[] = [{
+    name: "Untitled",
+    content: "",
+    external: false,
+    saved: false
+  }, {
+    name: "Test",
+    content: "This is a test",
+    external: false,
+    saved: true
+  }];
   sidenav: any;
   path: string = "";
 
@@ -72,13 +82,7 @@ export class AppComponent {
     if (this.path === "") {
       return;
     }
-    let fs = require('fs');
-    fs.writeFile(this.path + "/" + Note.name, Note.content, function (err: any) {
-      if (err) {
-        return console.log(err);
-      }
-      // file was saved successfully
-    });
+    // TODO implement saveSingleNote
   }
 
 
@@ -179,5 +183,17 @@ export class AppComponent {
   refreshNotes() {
     // refresh the notes
     // TODO: implement refresh notes
+  }
+
+  noteChanged($event: Note) {
+    // a note has changed
+    // TODO: implement noteChanged
+
+  }
+
+  selectNote(note: Note) {
+    // select a note
+    // this should open a new editor window with the note in it
+
   }
 }
