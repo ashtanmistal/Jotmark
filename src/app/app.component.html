@@ -54,7 +54,7 @@
       <!-- render the note content as markdown -->
       <mat-card-content>
         <!-- removed the markdown pipe because it was causing issues with the note content -->
-        <div [innerHTML]="note.content.slice(0, 1000)"></div>
+        <div [innerHTML]="parseAndRender(note.content)"></div>
       </mat-card-content>
     </mat-card>
   </ng-container>

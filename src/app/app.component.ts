@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { Note } from './note/note';
+import { marked } from 'marked';
+import katex from 'katex';
 
 @Component({
   selector: 'app-root',
@@ -8,17 +10,7 @@ import { Note } from './note/note';
 })
 export class AppComponent {
   title = 'Jotmark';
-  notes: Note[] = [{
-    name: "Untitled",
-    content: "",
-    external: false,
-    saved: false
-  }, {
-    name: "Test",
-    content: "This is a test",
-    external: false,
-    saved: true
-  }];
+  notes: Note[] = [];
   sidenav: any;
   path: string = "";
 
@@ -42,7 +34,7 @@ export class AppComponent {
       reader.onload = () => {
         const text = reader.result;
         if (typeof text === "string") {
-          this.notes.push({name: file.name, content: text, external: true, saved: true});
+          this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
           this.notes[this.notes.length - 1].saved = true;
         }
       }
@@ -195,5 +187,51 @@ export class AppComponent {
     // select a note
     // this should open a new editor window with the note in it
 
+  }
+
+  parseAndRender(content: string) {
+    // parse the content as Markdown
+    let html = marked(content);
+
+    // search for LaTeX equations and render them as HTML
+    html = html.replace(/\$\$(.+?)\$\$/g, (match, equation) => {
+      return katex.renderToString(equation, {displayMode: true});
+    });
+
+    html = html.replace(/\$(.+?)\$/g, (match, equation) => {
+      return katex.renderToString(equation, {displayMode: false});
+    });
+
+    // replace "\begin{equation}...\end{equation}" with HTML
+    html = html.replace(/\\begin\{equation\}(.+?)\\end\{equation\}/g, (match, equation) => {
+      return katex.renderToString(equation, {displayMode: true});
+    });
+
+    // replace "\begin{align}...\end{align}" with HTML
+    html = html.replace(/\\begin\{align\}(.+?)\\end\{align\}/g, (match, equation) => {
+      return katex.renderToString(equation, {displayMode: true});
+    });
+
+    // replace "\begin{align*}...\end{align*}" with HTML
+    html = html.replace(/\\begin\{align\*\}(.+?)\\end\{align\*\}/g, (match, equation) => {
+      return katex.renderToString(equation, {displayMode: true});
+    });
+
+    // replace \begin{lstlisting}...\end{lstlisting} with HTML
+    html = html.replace(/\\begin\{lstlisting\}(.+?)\\end\{lstlisting\}/g, (match, code) => {
+      return `<pre><code>${code}</code></pre>`;
+    });
+
+    // replace \begin{verbatim}...\end{verbatim} with HTML
+    html = html.replace(/\\begin\{verbatim\}(.+?)\\end\{verbatim\}/g, (match, code) => {
+      return `<pre><code>${code}</code></pre>`;
+    });
+
+    // replace \[...\] with HTML
+    html = html.replace(/\\\[(.+?)\\\]/g, (match, equation) => {
+      return katex.renderToString(equation, {displayMode: true});
+    });
+
+    return html;
   }
 }
