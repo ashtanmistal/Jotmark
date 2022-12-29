@@ -19,17 +19,14 @@ export class AppComponent {
   constructor(private sanitizer: DomSanitizer, private router: Router) {}
 
   openPreferencesMenu() {
-    this.sidenav.toggle();
     // TODO make a component for the Preferences menu
 
   }
 
   openHelpMenu() {
-    this.sidenav.toggle();
     // TODO: implement help menu
     // all this does is open a new window with the help menu
     // make a new window showing ../config/help.md
-
   }
 
   addMarkdownFile(file: File) {
@@ -38,7 +35,14 @@ export class AppComponent {
       reader.onload = () => {
         const text = reader.result;
         if (typeof text === "string") {
-          this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
+          // how do I get the relative path of the file?
+          let relativePath = file.webkitRelativePath;
+          // cut until the first slash if it exists
+          if (relativePath.indexOf("/") !== -1) {
+            relativePath = relativePath.slice(relativePath.indexOf("/") + 1);
+          }
+          // this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
+          this.notes.push({name: relativePath.slice(0, -3), content: text, external: true, saved: true});
           this.notes[this.notes.length - 1].saved = true;
         }
       }
@@ -67,7 +71,7 @@ export class AppComponent {
 
   newNote() {
     this.notes.push({name: "Untitled", content: "", external: false, saved: false});
-    // TODO automatically open a new editor window with that note in it
+    this.selectNote(this.notes[this.notes.length - 1]);
   }
 
   saveSingleNote(Note: Note) {
@@ -120,21 +124,23 @@ export class AppComponent {
 
   clearNotes() {
     // check for unsaved notes
+    let unsaved = false;
     for (let i = 0; i < this.notes.length; i++) {
-      let unsaved = false;
       if (!this.notes[i].saved) {
         unsaved = true;
         break;
       }
-      if (unsaved) {
-        const userPrompt = confirm("You have unsaved notes. Would you like to save them?");
-        if (userPrompt) {
-          this.saveAllNotes();
-        }
+    }
+    if (unsaved) {
+      const userPrompt = confirm("You have unsaved notes. Would you like to save them?");
+      // TODO change the confirm to be a material dialog and not a browser dialog
+      if (userPrompt) {
+        this.saveAllNotes();
       }
     }
     // clear all notes
     const userPrompt = confirm("Are you sure you want to clear all notes?");
+    // TODO change the confirm to be a material dialog and not a browser dialog
     if (userPrompt) {
       this.notes = [];
     }
@@ -142,53 +148,51 @@ export class AppComponent {
 
   undo() {
     // undo the last action
-    // TODO: implement undo
+    // TODO: implement undo IFF functionality does not already exist in the editor by default
   }
 
   redo() {
     // redo the last action
-    // TODO: implement redo
+    // TODO: implement redo IFF functionality does not already exist in the editor by default
   }
 
   cut() {
     // cut the selected text
-    // TODO: implement cut
+    // TODO: implement cut -- NOT a priority
   }
 
   copy() {
     // copy the selected text
-    // TODO: implement copy
+    // TODO: implement copy -- NOT a priority
   }
 
   paste() {
     // paste the selected text
-    // TODO: implement paste
+    // TODO: implement paste -- NOT a priority
   }
 
   appearanceMenu() {
     // open the appearance menu
     // this is a subset of the Preferences menu
+    // basically it opens the Preferences menu with the appearance tab selected, and that's it
     // TODO: implement appearance menu -- do this once the Preferences menu is implemented
   }
 
   toggleFullScreen() {
     // toggle full screen mode
-    // TODO implement full screen mode. We should probably make a settings.json file to store user preferences
+    // TODO implement this function
+    // pretty sure we can just have it write F11 or something simple like that
   }
 
   refreshNotes() {
     // refresh the notes
-    // TODO: implement refresh notes
+    // TODO: implement refresh notes -- I don't know if we even need this
+    // if we remove it here we need to remove it from the menu as well
   }
 
   selectNote(note: Note) {
-    // select a note
-    // this should open a new editor window with the note in it
-    // TODO: implement selectNote
-    // make a new window with Editor component in it, and pass the note to it
     this.selectedNote = note;
     this.router.navigate(['/editor', this.selectedNote]);
-    // I think this should be fine on this end, but we need to make the Editor component
   }
 
   parseAndRender(content: string) {

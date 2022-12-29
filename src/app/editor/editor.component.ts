@@ -85,13 +85,18 @@ export class EditorComponent {
             alert("Invalid file name.");
           }
           // TODO add an invisible character to the initialized note, and when a user rejects the prompt, delete the invisible character so that the user is not prompted again
+        } else {
+          // if the user rejects the prompt, then close the editor
+          this.showNote = false;
+          this.router.navigate(["/"]);
+          return;
         }
       }
     }
     this.note = null;
     this.router.navigate(['/']);
 
-    // TODO: making this null doesn't allow the user to re-open the same note immediately after closing it without double clicking
+    // TODO: making this null doesn't allow the user to re-open the same note immediately after closing it without double clicking; fix this
   }
 
   onEditorClick(event: MouseEvent) {
@@ -110,7 +115,7 @@ export class EditorComponent {
 
   onEditorKeyUp($event: KeyboardEvent) {
     // Here is where we would add actions corresponding to keyboard shortcuts that are not handled by the textarea
-    // TODO implement this once keyboard shortcuts are implemented
+    // TODO implement this once keyboard shortcuts are implemented in the UI
     // if the user presses escape, close the editor
     if ($event.key === "Escape") {
       this.closeEditor();

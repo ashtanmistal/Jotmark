@@ -10,7 +10,7 @@
   /* set the height to 80% of the page */
   height: 80%;
   overflow: hidden;
-  box-shadow: #d5d5d5 0 0 10px;
+  box-shadow: #c4c4c4 0 0 20px;
 }
 
 .note-card {
@@ -26,7 +26,7 @@
   max-width: 40vw;
   min-height: 80vh;
   max-height: 80vh;
-  box-shadow: #d5d5d5 0 0 10px;
+  box-shadow: #c4c4c4 0 0 20px;
 }
 
 .editor-container {
@@ -37,6 +37,6 @@
   max-width: 40vw;
   min-height: 80vh;
   max-height: 80vh;
-  box-shadow: #d5d5d5 0 0 10px;
+  box-shadow: #c4c4c4 0 0 20px;
 }
 
