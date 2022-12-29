@@ -12,6 +12,9 @@ import { EditorComponent } from './editor/editor.component';
 import { SettingsComponent } from './settings/settings.component';
 import { NoteComponent } from './note/note.component';
 import {MarkdownModule} from "ngx-markdown";
+import { AppRoutingModule } from './app-routing.module';
+import {FormsModule} from "@angular/forms";
+import {MatFormFieldModule} from "@angular/material/form-field";
 
 
 @NgModule({
@@ -21,16 +24,19 @@ import {MarkdownModule} from "ngx-markdown";
     SettingsComponent,
     NoteComponent
   ],
-  imports: [
-    BrowserModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatMenuModule,
-    MatIconModule,
-    MatCardModule,
-    BrowserAnimationsModule,
-    MarkdownModule
-  ],
+    imports: [
+        BrowserModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatMenuModule,
+        MatIconModule,
+        MatCardModule,
+        BrowserAnimationsModule,
+        MarkdownModule,
+        AppRoutingModule,
+        FormsModule,
+        MatFormFieldModule
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })

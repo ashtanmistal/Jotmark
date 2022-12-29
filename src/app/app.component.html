@@ -1,4 +1,6 @@
 <!-- include the stylesheet -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" crossorigin="anonymous">
+
 <mat-toolbar>
   <mat-toolbar-row>
     <button mat-icon-button [matMenuTriggerFor]="menu">
@@ -42,32 +44,18 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<div class="main-ui" style="display: flex; flex-wrap: wrap;">
-  <!-- include each note as a separate mat-card -->
-  <!-- when it is clicked it should call the selectNote() function -->
-  <!-- the mat-card should have a mat-card-title with the note's title -->
-  <!-- and the mat-card-content should have the note's content -->
-
+<div class="main-ui">
+  <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;">
   <ng-container *ngFor="let note of notes">
-    <mat-card class="note-card" (click)="selectNote(note)">
+    <mat-card class="note-card" (click)="handleNoteClick(note, $event)">
       <mat-card-title>{{note.name}}</mat-card-title>
-      <!-- render the note content as markdown -->
       <mat-card-content>
-        <!-- removed the markdown pipe because it was causing issues with the note content -->
         <div [innerHTML]="parseAndRender(note.content)"></div>
       </mat-card-content>
     </mat-card>
   </ng-container>
+  </div>
+  <div class="editor" style="position: fixed; z-index: 2;">
+    <app-editor *ngIf="selectedNote" [note]="selectedNote"></app-editor>
+  </div>
 </div>
-
-<!-- TODO the below is what needs to be implemented. You can use the existing code above as a reference. -->
-<!--<div class="main-ui">-->
-<!--  <ng-container *ngFor="let note of notes">-->
-<!--    <app-note [note]="note" (noteChange)="noteChanged($event)"></app-note>-->
-<!--  </ng-container>-->
-<!--</div>-->
-<!-- main UI: should make a card for every note -->
-<!-- when the user clicks on a note, it should open in the editor -->
-<!-- the editor is a separate component, and should be placed in the editor component's template -->
-<!-- include the editor component in the main UI -->
-

@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
-import { Note } from './note/note';
-import { marked } from 'marked';
+import {Component} from '@angular/core';
+import {Note} from './note/note';
+import {marked} from 'marked';
 import katex from 'katex';
+import {DomSanitizer} from "@angular/platform-browser";
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -13,6 +15,8 @@ export class AppComponent {
   notes: Note[] = [];
   sidenav: any;
   path: string = "";
+  selectedNote: Note | null = null;
+  constructor(private sanitizer: DomSanitizer, private router: Router) {}
 
   openPreferencesMenu() {
     this.sidenav.toggle();
@@ -177,61 +181,45 @@ export class AppComponent {
     // TODO: implement refresh notes
   }
 
-  noteChanged($event: Note) {
-    // a note has changed
-    // TODO: implement noteChanged
-
-  }
-
   selectNote(note: Note) {
     // select a note
     // this should open a new editor window with the note in it
-
+    // TODO: implement selectNote
+    // make a new window with Editor component in it, and pass the note to it
+    this.selectedNote = note;
+    this.router.navigate(['/editor', this.selectedNote]);
+    // I think this should be fine on this end, but we need to make the Editor component
   }
 
   parseAndRender(content: string) {
     // parse the content as Markdown
     let html = marked(content);
 
-    // search for LaTeX equations and render them as HTML
-    html = html.replace(/\$\$(.+?)\$\$/g, (match, equation) => {
-      return katex.renderToString(equation, {displayMode: true});
+    // get $$ ... $$ equations
+    html = html.replace(/\$\$([^]*?)\$\$/g, (match, p1) => {
+      return katex.renderToString(p1, {displayMode: true});
     });
 
-    html = html.replace(/\$(.+?)\$/g, (match, equation) => {
-      return katex.renderToString(equation, {displayMode: false});
-    });
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
 
-    // replace "\begin{equation}...\end{equation}" with HTML
-    html = html.replace(/\\begin\{equation\}(.+?)\\end\{equation\}/g, (match, equation) => {
-      return katex.renderToString(equation, {displayMode: true});
-    });
+  deselectNote() {
+    this.selectedNote = null;
+    this.router.navigate(['/editor', this.selectedNote]); // should it be this, or just .navigate(['/'])?
+  }
 
-    // replace "\begin{align}...\end{align}" with HTML
-    html = html.replace(/\\begin\{align\}(.+?)\\end\{align\}/g, (match, equation) => {
-      return katex.renderToString(equation, {displayMode: true});
-    });
+  handleNoteClick(note: Note, event: MouseEvent) {
+    // if the user right clicked, open the context menu
+    // if the user left clicked, select the note
+    if (event.button === 0) {
+      if (this.selectedNote === note) {
+        this.deselectNote();
+      } else {
+        this.selectNote(note);
+      }
+    } else if (event.button === 2) {
+      // TODO: implement context menu
+    }
 
-    // replace "\begin{align*}...\end{align*}" with HTML
-    html = html.replace(/\\begin\{align\*\}(.+?)\\end\{align\*\}/g, (match, equation) => {
-      return katex.renderToString(equation, {displayMode: true});
-    });
-
-    // replace \begin{lstlisting}...\end{lstlisting} with HTML
-    html = html.replace(/\\begin\{lstlisting\}(.+?)\\end\{lstlisting\}/g, (match, code) => {
-      return `<pre><code>${code}</code></pre>`;
-    });
-
-    // replace \begin{verbatim}...\end{verbatim} with HTML
-    html = html.replace(/\\begin\{verbatim\}(.+?)\\end\{verbatim\}/g, (match, code) => {
-      return `<pre><code>${code}</code></pre>`;
-    });
-
-    // replace \[...\] with HTML
-    html = html.replace(/\\\[(.+?)\\\]/g, (match, equation) => {
-      return katex.renderToString(equation, {displayMode: true});
-    });
-
-    return html;
   }
 }

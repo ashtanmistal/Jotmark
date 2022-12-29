@@ -1,0 +1,42 @@
+.editor {
+  /* this is the main editor container */
+  /* align it to the exact center of the page
+  /* and set its width to 80% of the page */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  /* set the height to 80% of the page */
+  height: 80%;
+  overflow: hidden;
+  box-shadow: #d5d5d5 0 0 10px;
+}
+
+.note-card {
+  /* this is the note card */
+  /* I don't think anything needs to be changed here */
+}
+
+.render-container {
+  /* this is the container for the rendered markdown */
+  overflow: auto;
+  background: #f3f3f3;
+  min-width: 40vw;
+  max-width: 40vw;
+  min-height: 80vh;
+  max-height: 80vh;
+  box-shadow: #d5d5d5 0 0 10px;
+}
+
+.editor-container {
+  /* this is the container for the editor, where the user types */
+  overflow: auto;
+  background: #e8e8e8;
+  min-width: 40vw;
+  max-width: 40vw;
+  min-height: 80vh;
+  max-height: 80vh;
+  box-shadow: #d5d5d5 0 0 10px;
+}
+
