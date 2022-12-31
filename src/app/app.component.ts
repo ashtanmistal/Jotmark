@@ -48,7 +48,7 @@ export class AppComponent {
             // if it is, add that subdirectory as a tag
             // do not add the file name itself as a tag
             if (relativePath.indexOf("/") !== relativePath.lastIndexOf("/")) {
-              tags.push(relativePath.substring(0, relativePath.indexOf("/")));
+              tags.push(relativePath.substring(relativePath.indexOf("/") + 1, relativePath.slice(relativePath.indexOf("/") + 1).indexOf("/") + relativePath.indexOf("/") + 1)); // add the subdirectory as a tag
             }
           }
           // this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
@@ -78,11 +78,12 @@ export class AppComponent {
         // for all immediate subdirectories, add them as tags. Do not add subdirectories of subdirectories
         // ignore the root directory. e.g. if I import the folder "Notes" with the subdirectories "Math" and "English", then
         // the tags will be "Math" and "English"
-        if (input.files[i].webkitRelativePath.indexOf("/") !== -1) {
-          // skip the root directory
-          if (input.files[i].webkitRelativePath.indexOf("/") === input.files[i].webkitRelativePath.lastIndexOf("/")) {
-            if (!this.totalTags.includes(input.files[i].webkitRelativePath.slice(0, input.files[i].webkitRelativePath.indexOf("/")))) {
-              this.totalTags.push(input.files[i].webkitRelativePath.slice(0, input.files[i].webkitRelativePath.indexOf("/")));
+        let relativePath = input.files[i].webkitRelativePath;
+        if (relativePath.indexOf("/") !== -1) {
+          if (relativePath.indexOf("/") !== relativePath.lastIndexOf("/")) {
+            let subDirectory = relativePath.substring(relativePath.indexOf("/") + 1, relativePath.slice(relativePath.indexOf("/") + 1).indexOf("/") + relativePath.indexOf("/") + 1);
+            if (!this.totalTags.includes(subDirectory)) {
+              this.totalTags.push(subDirectory);
             }
           }
         }
