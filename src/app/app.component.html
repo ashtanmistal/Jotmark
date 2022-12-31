@@ -36,33 +36,53 @@
       <!-- the preferences menu is in app-preferences. Open it by calling openPreferencesMenu() -->
       <button mat-menu-item (click)="openHelpMenu()">Help</button>
     </mat-menu>
-    <span>Jotmark</span>
-    <span class="fill-remaining-space"></span>
-    <!-- on the right hand side of the toolbar, add a button that refreshes the notes list -->
-    <button mat-icon-button (click)="refreshNotes()">
-      <mat-icon>refresh</mat-icon>
+    <!-- add a tag button that opens a selectable list of tags -->
+    <!-- when a tag is selected, it should be added to selectedTags -->
+    <button mat-icon-button [matMenuTriggerFor]="tagMenu">
+      <mat-icon>label</mat-icon>
     </button>
+    <mat-menu #tagMenu="matMenu">
+      <ng-template matMenuContent>
+        <mat-selection-list #tagList>
+          <mat-list-option *ngFor="let tag of totalTags" [selected]="selectedTags.includes(tag)" (click)="toggleTag(tag)">
+            {{tag}}
+          </mat-list-option>
+        </mat-selection-list>
+      </ng-template>
+    </mat-menu>
     <span class="spacer"></span>
+    <span>Jotmark</span>
+    <span class="spacer"></span>
+    <!-- on the right hand side of the toolbar, add a button that refreshes the notes list -->
+<!--    <button mat-icon-button (click)="refreshNotes()">-->
+<!--      <mat-icon>refresh</mat-icon>-->
+<!--    </button>-->
+    <span class="spacer"></span>
+    <!-- add a search bar, centered on the menu, aligned to the right hand side of the toolbar -->
+    <mat-form-field class="search-bar" style="width: content-box; height: inherit; margin: 5px 10px;">
+      <input matInput placeholder="Search" [(ngModel)]="searchTerm">
+    </mat-form-field>
   </mat-toolbar-row>
 </mat-toolbar>
 
 <div class="main-ui">
   <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;">
-  <ng-container *ngFor="let note of notes"> <!-- changed from notes to filtered notes to enable search as well as tag filtering -->
+    <!-- if there are no notes, display a message -->
+    <div *ngIf="notes.length === 0" class="no-notes-message">
+      <p>No notes found.</p> <!-- TODO add a default thing where if clicked creates a new note or loads a directory -->
+    </div>
+  <ng-container *ngFor="let note of searchNotes(notes)">
     <mat-card class="note-card">
       <!-- include the content in a div with a max height and overflow scroll -->
       <div style="max-height: 200px; overflow: auto">
-        <div style="background: #e8e8e8; padding: 5px; border-radius: 5px;">
-          <mat-card-title>{{note.name}}</mat-card-title>
-          <!-- convert last modified date to a string and add as a subtitle -->
-          <!-- Right now, the tag UI is always at the bottom of the note card but is in the same scrollable area as the note content. -->
-          <!-- we want this to be locked to the bottom of the note card, so that it doesn't scroll with the note content. -->
-        </div>
       <mat-card-content (click)="handleNoteClick(note, $event)"> <!-- moved from the note card to the content so it does not interfere with tags -->
         <div [innerHTML]="parseAndRender(note.content)" style="overflow: auto"></div>
+        <div class="fill-remaining-space"></div>
       </mat-card-content>
       </div>
+      <div class="fill-remaining-space"></div>
       <mat-card-footer>
+        <div class="fill-remaining-space"></div>
         <mat-card-actions>
           <button mat-icon-button (click)="deleteNoteByIndex($event, notes.indexOf(note))">
             <mat-icon>delete</mat-icon>

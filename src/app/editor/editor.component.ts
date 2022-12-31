@@ -160,4 +160,17 @@ export class EditorComponent {
       return month + " " + day + ", " + year + " at " + hour12 + ":" + minuteString + " " + ampm;
     }
   }
+
+  editNoteName(note: Note) {
+    // TODO make this a material design dialog
+    let name = prompt("Please enter a new name for the note.", note.name);
+    if (name != null) {
+      // check if the name is valid as a file name
+      if (name.match(/^[a-zA-Z0-9_\-\.]+$/)) {
+        note.name = name;
+      } else {
+        alert("Invalid file name.");
+      }
+    }
+  }
 }

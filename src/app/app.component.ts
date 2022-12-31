@@ -4,6 +4,7 @@ import {marked} from 'marked';
 import katex from 'katex';
 import {DomSanitizer} from "@angular/platform-browser";
 import {Router} from '@angular/router';
+import {filter} from "rxjs";
 
 @Component({
   selector: 'app-root',
@@ -17,8 +18,8 @@ export class AppComponent {
   path: string = "";
   selectedNote: Note | null = null;
   totalTags: string[] = [];
-
-  filteredNotes: Note[] = this.notes;
+  searchTerm: string = "";
+  selectedTags: string[] = [];
   constructor(private sanitizer: DomSanitizer, private router: Router) {}
 
   openPreferencesMenu() {
@@ -298,5 +299,41 @@ export class AppComponent {
       this.notes.splice(number, 1);
     }
     $event.stopPropagation();
+  }
+
+  searchNotes(notes: Note[]) {
+    // filter the notes by any tags selected
+    // make a copy of the notes
+    let filteredNotes = notes.slice();
+    if (this.selectedTags.length !== 0) {
+      for (let i = 0; i < filteredNotes.length; i++) {
+        for (let j = 0; j < this.selectedTags.length; j++) {
+          if (!filteredNotes[i].tags.includes(this.selectedTags[j])) {
+            filteredNotes.splice(i, 1);
+            i--;
+            break;
+          }
+        }
+      }
+    }
+    // search the notes for the given query in the title and content
+    // query is this.searchTerm
+    if (this.searchTerm === "") {
+      return filteredNotes;
+    } else {
+      return filteredNotes.filter(note => {
+        return note.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+          note.content.toLowerCase().includes(this.searchTerm.toLowerCase());
+      });
+    }
+  }
+
+  toggleTag(tag: string) {
+    // toggle the given tag in the selectedTags array
+    if (this.selectedTags.includes(tag)) {
+      this.selectedTags.splice(this.selectedTags.indexOf(tag), 1);
+    } else {
+      this.selectedTags.push(tag);
+    }
   }
 }
