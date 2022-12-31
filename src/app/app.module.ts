@@ -15,6 +15,7 @@ import {MarkdownModule} from "ngx-markdown";
 import { AppRoutingModule } from './app-routing.module';
 import {FormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatChipsModule} from "@angular/material/chips";
 
 
 @NgModule({
@@ -35,7 +36,8 @@ import {MatFormFieldModule} from "@angular/material/form-field";
         MarkdownModule,
         AppRoutingModule,
         FormsModule,
-        MatFormFieldModule
+        MatFormFieldModule,
+        MatChipsModule
     ],
   providers: [],
   bootstrap: [AppComponent]

@@ -26,7 +26,7 @@ export class EditorComponent {
 
   constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer, private router: Router) {
     this.route.params.subscribe(params => {
-      this.note = {name: params['name'], content: params['content'], external: false, saved: false};
+      this.note = {name: params['name'], path: params['path'], tags: params['tags'], content: params['content'], external: params['external'], saved: params['saved'], lastModified: params['lastModified']};
       this.showNote = true;
     });
   }
@@ -73,6 +73,8 @@ export class EditorComponent {
     // if the note is named "Untitled", then the user should be prompted to name the note
     // if the note is not named "Untitled", then the user should not be prompted to name the note
     if (this.note != null && this.note.name === "Untitled") {
+      // update the last modified time
+      this.note.lastModified = Date.now();
       // prompt the user to name the note
       while(true) {
         const name = prompt("Please name your note."); // TODO make this a material design dialog
@@ -127,5 +129,35 @@ export class EditorComponent {
     // INCLUDING copy and paste
     // We need to implement something here if the user pastes images into the editor; it should create a new
     // image file and insert the image into the note using Markdown image syntax.
+  }
+
+  convertDate(lastModified: number) {
+    // convert the last modified date to a string like "September 23, 2020 at 12:00 PM"
+    const date = new Date(lastModified);
+    const month = date.toLocaleString('default', {month: 'long'});
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const hour = date.getHours();
+    const minute = date.getMinutes();
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12;
+    const minuteString = minute < 10 ? '0' + minute : minute;
+    // if it was just modified, return "Just now"
+    // if it was modified within a few minutes within the current time, return number of minutes ago
+    // if it was modified within a few hours within the current time, return number of hours ago
+    // else return the date
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const diffMinutes = Math.floor(diff / 60000);
+    const diffHours = Math.floor(diff / 3600000);
+    if (diffMinutes < 1) {
+      return "Just now";
+    } else if (diffHours < 1) {
+      return diffMinutes + " minutes ago";
+    } else if (diffHours < 24) {
+      return diffHours + " hours ago";
+    } else {
+      return month + " " + day + ", " + year + " at " + hour12 + ":" + minuteString + " " + ampm;
+    }
   }
 }

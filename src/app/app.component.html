@@ -48,12 +48,44 @@
 
 <div class="main-ui">
   <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;">
-  <ng-container *ngFor="let note of notes">
-    <mat-card class="note-card" (click)="handleNoteClick(note, $event)">
-      <mat-card-title>{{note.name}}</mat-card-title>
-      <mat-card-content>
-        <div [innerHTML]="parseAndRender(note.content)"></div>
+  <ng-container *ngFor="let note of notes"> <!-- changed from notes to filtered notes to enable search as well as tag filtering -->
+    <mat-card class="note-card">
+      <!-- include the content in a div with a max height and overflow scroll -->
+      <div style="max-height: 200px; overflow: auto">
+        <div style="background: #e8e8e8; padding: 5px; border-radius: 5px;">
+          <mat-card-title>{{note.name}}</mat-card-title>
+          <!-- convert last modified date to a string and add as a subtitle -->
+          <!-- Right now, the tag UI is always at the bottom of the note card but is in the same scrollable area as the note content. -->
+          <!-- we want this to be locked to the bottom of the note card, so that it doesn't scroll with the note content. -->
+        </div>
+      <mat-card-content (click)="handleNoteClick(note, $event)"> <!-- moved from the note card to the content so it does not interfere with tags -->
+        <div [innerHTML]="parseAndRender(note.content)" style="overflow: auto"></div>
       </mat-card-content>
+      </div>
+      <mat-card-footer>
+        <mat-card-actions>
+          <button mat-icon-button (click)="deleteNoteByIndex($event, notes.indexOf(note))">
+            <mat-icon>delete</mat-icon>
+          </button>
+          <ng-container *ngFor="let tag of note.tags">
+            <mat-chip (click)="filterByTag(tag)" color="primary">{{tag}}
+              <mat-icon (click)="removeTagFromNoteByIndex(note, $event, note.tags.indexOf(tag))" matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </ng-container>
+          <button mat-icon-button [matMenuTriggerFor]="tagMenu">
+            <mat-icon>add</mat-icon>
+          </button>
+          <mat-menu #tagMenu="matMenu">
+            <!-- make a button for adding a new tag to the note that calls addTagToNote() -->
+            <!-- on click it should open a material design dialog that asks for the tag name -->
+            <button mat-menu-item (click)="addNewTagToNote(note)">Add Tag</button>
+            <!-- for each tag in the tags list, add a menu item that adds the tag to the note -->
+            <ng-container *ngFor="let tag of totalTags">
+              <button mat-menu-item (click)="addTagToNote(note, tag)">{{tag}}</button>
+            </ng-container>
+          </mat-menu>
+        </mat-card-actions>
+      </mat-card-footer>
     </mat-card>
   </ng-container>
   </div>
