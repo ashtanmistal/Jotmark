@@ -6,9 +6,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80%;
-  /* set the height to 80% of the page */
-  height: 80%;
+  width: 90%;
+  height: 90%;
   overflow: hidden;
   box-shadow: #c4c4c4 0 0 20px;
 }
@@ -22,10 +21,8 @@
   /* this is the container for the rendered markdown */
   overflow: auto;
   background: #f3f3f3;
-  min-width: 40vw;
-  max-width: 40vw;
-  min-height: 80vh;
-  max-height: 80vh;
+  width:45vw;
+  height: 90vh;
   box-shadow: #c4c4c4 0 0 20px;
 }
 
@@ -33,10 +30,8 @@
   /* this is the container for the editor, where the user types */
   overflow: auto;
   background: #e8e8e8;
-  min-width: 40vw;
-  max-width: 40vw;
-  min-height: 80vh;
-  max-height: 80vh;
+  width:45vw;
+  height: 90vh;
   box-shadow: #c4c4c4 0 0 20px;
 }
 

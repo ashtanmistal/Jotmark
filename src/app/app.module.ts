@@ -15,6 +15,10 @@ import {MarkdownModule} from "ngx-markdown";
 import { AppRoutingModule } from './app-routing.module';
 import {FormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatChipsModule} from "@angular/material/chips";
+import {MatInputModule} from "@angular/material/input";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatListModule} from "@angular/material/list";
 
 
 @NgModule({
@@ -24,19 +28,23 @@ import {MatFormFieldModule} from "@angular/material/form-field";
     SettingsComponent,
     NoteComponent
   ],
-    imports: [
-        BrowserModule,
-        MatToolbarModule,
-        MatButtonModule,
-        MatMenuModule,
-        MatIconModule,
-        MatCardModule,
-        BrowserAnimationsModule,
-        MarkdownModule,
-        AppRoutingModule,
-        FormsModule,
-        MatFormFieldModule
-    ],
+  imports: [
+    BrowserModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatMenuModule,
+    MatIconModule,
+    MatCardModule,
+    BrowserAnimationsModule,
+    MarkdownModule,
+    AppRoutingModule,
+    FormsModule,
+    MatFormFieldModule,
+    MatChipsModule,
+    MatInputModule,
+    MatCheckboxModule,
+    MatListModule
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })
