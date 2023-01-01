@@ -1,0 +1,47 @@
+<!-- this is a material design dialog component -->
+<ng-container *ngIf="data.type=== 'confirm'">
+  <!-- dialogs aren't working for some reason so we'll make a card -->
+  <mat-card class="dialog">
+    <mat-card-title style="margin: 5px; padding: 0px;">
+      {{data.title}}</mat-card-title>
+    <mat-card-content>
+      <p>{{data.message}}</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button (click)="closeDialog(false)" style="color: #c47067;">Cancel</button>
+      <button mat-button (click)="closeDialog(true)" style="color: #7fb081;">Confirm</button>
+    </mat-card-actions>
+  </mat-card>
+</ng-container>
+
+<ng-container *ngIf="data.type=== 'prompt'">
+  <mat-card class="prompt">
+    <mat-card-title style="margin: 5px; padding: 0px;">
+      {{data.title}}</mat-card-title>
+    <mat-card-content>
+      <mat-form-field>
+        <input matInput [(ngModel)]="data.message">
+        <!-- this is the input field -->
+        <!-- it is saved to the data.message property -->
+      </mat-form-field>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button (click)="closeDialog(false)">Cancel</button>
+      <button mat-button (click)="closeDialog(data.message)">Confirm</button>
+    </mat-card-actions>
+  </mat-card>
+</ng-container>
+
+<!-- alert -->
+<ng-container *ngIf="data.type=== 'alert'">
+  <mat-card class="alert">
+    <mat-card-title style="margin: 5px; padding: 0px;">
+      {{data.title}}</mat-card-title>
+    <mat-card-content>
+      <p>{{data.message}}</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-button (click)="closeDialog(null)">Ok</button>
+    </mat-card-actions>
+  </mat-card>
+</ng-container>

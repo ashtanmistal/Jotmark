@@ -1,0 +1,16 @@
+.dialog {
+  margin: 10px;
+  border-radius: 5px;
+}
+
+.prompt {
+  margin: 10px;
+  border-radius: 5px;
+
+}
+
+.alert {
+  margin: 10px;
+  border-radius: 5px;
+
+}

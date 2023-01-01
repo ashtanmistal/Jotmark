@@ -20,6 +20,8 @@ import {MatInputModule} from "@angular/material/input";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatListModule} from "@angular/material/list";
 import {NgxColorsModule} from "ngx-colors";
+import { DialogComponent } from './dialog/dialog.component';
+import {MatDialogModule} from "@angular/material/dialog";
 
 
 @NgModule({
@@ -27,7 +29,8 @@ import {NgxColorsModule} from "ngx-colors";
     AppComponent,
     EditorComponent,
     SettingsComponent,
-    NoteComponent
+    NoteComponent,
+    DialogComponent
   ],
   imports: [
     BrowserModule,
@@ -45,7 +48,8 @@ import {NgxColorsModule} from "ngx-colors";
     MatInputModule,
     MatCheckboxModule,
     MatListModule,
-    NgxColorsModule
+    NgxColorsModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]

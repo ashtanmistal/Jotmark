@@ -5,6 +5,9 @@ import katex from 'katex';
 import {DomSanitizer} from "@angular/platform-browser";
 import {Router} from '@angular/router';
 import { NgxColorsModule } from 'ngx-colors';
+import FileSaver from 'file-saver';
+import {MatDialog} from "@angular/material/dialog";
+import {DialogComponent} from "./dialog/dialog.component";
 
 @Component({
   selector: 'app-root',
@@ -23,7 +26,7 @@ export class AppComponent {
   recentlyDeletedIndices: number[] = [];
   tagColors: any[] = [];
   defaultColor: string = "#ffffff";
-  constructor(private sanitizer: DomSanitizer, private router: Router) {}
+  constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog) {}
 
   openPreferencesMenu() {
     // TODO make a component for the Preferences menu
@@ -46,13 +49,22 @@ export class AppComponent {
           let relativePath = file.webkitRelativePath;
           // cut until the first slash if it exists
           let tags = [];
-          if (relativePath.indexOf("/") !== -1) {
-            // find out if the note is in a subdirectory
-            // if it is, add that subdirectory as a tag
-            // do not add the file name itself as a tag
-            if (relativePath.indexOf("/") !== relativePath.lastIndexOf("/")) {
-              tags.push(relativePath.substring(relativePath.indexOf("/") + 1, relativePath.slice(relativePath.indexOf("/") + 1).indexOf("/") + relativePath.indexOf("/") + 1)); // add the subdirectory as a tag
+          // look for tags on line 1 in the form of [//]: # (tags: tag1, color1; tag2, color2; ...)
+          let firstLine = text.substring(0, text.indexOf("\n"));
+          if (firstLine.startsWith("[//]: # (tags: ")) {
+            let tagString = firstLine.substring("[//]: # (tags: ".length, firstLine.length - 1);
+            let tagArray = tagString.split("; ");
+            for (let i = 0; i < tagArray.length; i++) {
+              let tag = tagArray[i].substring(0, tagArray[i].indexOf(", "));
+              let color = tagArray[i].substring(tagArray[i].indexOf(", ") + 2);
+              if (!this.totalTags.includes(tag)) {
+                this.totalTags.push(tag);
+                this.tagColors.push(color);
+              }
+              tags.push(tag);
             }
+            // remove the first line so the user doesn't see it and break the tag system
+            text.replace(firstLine, "");
           }
           // this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
           this.notes.push({name: file.name.slice(0, -3), path: relativePath, tags: tags, content: text, external: true, saved: true, lastModified: file.lastModified, images: []});
@@ -78,9 +90,6 @@ export class AppComponent {
       for (let i = 0; i < input.files.length; i++) {
         // add the markdown file
         this.addMarkdownFile(input.files[i]);
-        // for all immediate subdirectories, add them as tags. Do not add subdirectories of subdirectories
-        // ignore the root directory. e.g. if I import the folder "Notes" with the subdirectories "Math" and "English", then
-        // the tags will be "Math" and "English"
         let relativePath = input.files[i].webkitRelativePath;
         if (relativePath.indexOf("/") !== -1) {
           if (relativePath.indexOf("/") !== relativePath.lastIndexOf("/")) {
@@ -111,43 +120,25 @@ export class AppComponent {
     if (this.path === "") {
       return;
     }
-    // TODO implement saveSingleNote
+    // add the tags as a comment on line 1 in the form of [//]: # (tags: tag1, color1; tag2, color2; ...)
+    let tags = "";
+    for (let i = 0; i < Note.tags.length; i++) {
+      tags += Note.tags[i] + ", " + this.tagColors[this.totalTags.indexOf(Note.tags[i])] + "; ";
+    }
+    let content = "[//]: # (tags: " + tags + ")\n" + Note.content;
+
+    let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+    // if the note is external, save it in the same directory as the original
+    FileSaver.saveAs(blob, Note.name + ".md");
   }
 
 
   saveAllNotes() {
-    // save all notes
-    if (this.path === "") {
-      this.saveAsAllNotes();
-    } else {
       for (let i = 0; i < this.notes.length; i++) {
-        this.saveSingleNote(this.notes[i]);
+        if (!this.notes[i].saved) {
+          this.saveSingleNote(this.notes[i]);
+        }
       }
-    }
-  }
-
-  saveAsAllNotes() {
-    // save the current directory to a temporary location
-// select a folder from the file system and save all notes there
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.webkitdirectory = true;
-
-    input.addEventListener('change', () => {
-      if (input.files == null) {
-        return;
-      }
-      this.path = input.files[0].name;
-    });
-    input.click();
-
-    // save all notes to the new directory
-    if (this.path !== "") {
-      this.saveAllNotes();
-    } else {
-      // throw an error
-      alert("Error: could not save notes to new directory");
-    }
   }
 
   clearNotes() {
@@ -160,17 +151,14 @@ export class AppComponent {
       }
     }
     if (unsaved) {
-      const userPrompt = confirm("You have unsaved notes. Would you like to save them?");
-      // TODO change the confirm to be a material dialog and not a browser dialog
-      if (userPrompt) {
-        this.saveAllNotes();
-      }
-    }
-    // clear all notes
-    const userPrompt = confirm("Are you sure you want to clear all notes?");
-    // TODO change the confirm to be a material dialog and not a browser dialog
-    if (userPrompt) {
-      this.notes = [];
+      const userPrompt = this.dialog.open(DialogComponent, {
+        data: { title: "Unsaved Notes", message: "You have unsaved notes. Are you sure you want to clear all notes?", type: "confirm" }
+      });
+      userPrompt.afterClosed().subscribe(result => {
+        if (result) {
+          this.notes = [];
+        }
+      });
     }
   }
 
@@ -255,30 +243,35 @@ export class AppComponent {
   removeTagFromNoteByIndex(note: Note, $event: MouseEvent, number: number) {
     // remove the tag from the note at the given index
     note.tags.splice(number, 1);
+    note.saved = false;
     $event.stopPropagation(); // this prevents the note from being selected
   }
 
   addNewTagToNote(note: Note) {
-    // add a tag to the note and add it to the total tags if it is not already there
-    // should prompt the user using a material design dialog
-    // for now we will just use a browser prompt
-    // TODO change the dialog to be a material dialog and not a browser dialog
-    const tag = prompt("Enter a tag");
-    if (tag != null) {
-      if (!this.totalTags.includes(tag)) {
-        this.totalTags.push(tag);
-        this.tagColors.push(this.defaultColor);
+    const tag = this.dialog.open(DialogComponent, {
+      data: { title: "Add Tag", message: "", type: "prompt" }
+    });
+    tag.afterClosed().subscribe(result => {
+      if (result) {
+        if (this.totalTags.includes(result)) {
+          this.totalTags.push(result);
+          this.tagColors.push(this.defaultColor);
+        }
+        if (!note.tags.includes(result)) {
+          note.tags.push(result);
+          note.saved = false;
+        }
       }
-      if (!note.tags.includes(tag)) {
-        note.tags.push(tag);
-      }
-    }
-  }
+    });
+}
+
+
 
   addTagToNote(note: Note, tag: string) {
     // add a tag to the note at the given index
     if (!note.tags.includes(tag)) {
       note.tags.push(tag);
+      note.saved = false;
     }
 
   }
@@ -294,16 +287,16 @@ export class AppComponent {
   }
 
   deleteNoteByIndex($event: MouseEvent, number: number) {
-    // delete the note at the given index
-    // prompt the user to make sure they want to delete the note
-    const userPrompt = confirm("Are you sure you want to delete this note?");
-// TODO change the confirm to be a material dialog and not a browser dialog
-    if (userPrompt) {
-      // add the note to recently deleted
-      this.recentlyDeleted.push(this.notes[number]);
-      this.recentlyDeletedIndices.push(number);
-      this.notes.splice(number, 1);
-    }
+    const userPrompt = this.dialog.open(DialogComponent, {
+      data: { title: "Delete Note", message: "Are you sure you want to delete this note?", type: "confirm" }
+    });
+    userPrompt.afterClosed().subscribe(result => {
+      if (result) {
+        this.recentlyDeleted.push(this.notes[number]);
+        this.recentlyDeletedIndices.push(number);
+        this.notes.splice(number, 1);
+      }
+    });
     $event.stopPropagation();
   }
 
@@ -353,7 +346,10 @@ export class AppComponent {
 
   deleteTag(tag: string) {
     for (let note of this.notes) {
-      note.tags.splice(note.tags.indexOf(tag), 1);
+      if (note.tags.includes(tag)) {
+        note.tags.splice(note.tags.indexOf(tag), 1);
+        note.saved = false;
+      }
     }
     this.totalTags.splice(this.totalTags.indexOf(tag), 1);
     this.tagColors.splice(this.totalTags.indexOf(tag), 1);
@@ -362,5 +358,15 @@ export class AppComponent {
   changeTagColor(tag: string, color: any) {
     // change the color of the given tag
     this.tagColors[this.totalTags.indexOf(tag)] = color;
+    for (let note of this.notes) {
+      if (note.tags.includes(tag)) {
+        note.saved = false;
+      }
+    }
+  }
+
+  clearRecentlyDeleted() {
+    this.recentlyDeleted = [];
+    this.recentlyDeletedIndices = [];
   }
 }

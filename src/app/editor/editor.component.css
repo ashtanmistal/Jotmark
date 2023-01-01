@@ -6,8 +6,8 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90%;
-  height: 90%;
+  width: 85%;
+  height: 85%;
   overflow: hidden;
   box-shadow: #c4c4c4 0 0 20px;
 }
@@ -22,7 +22,7 @@
   overflow: auto;
   background: #f3f3f3;
   width:45vw;
-  height: 90vh;
+  height: 80vh;
   box-shadow: #c4c4c4 0 0 20px;
 }
 
@@ -31,7 +31,7 @@
   overflow: auto;
   background: #e8e8e8;
   width:45vw;
-  height: 90vh;
+  height: 80vh;
   box-shadow: #c4c4c4 0 0 20px;
 }
 

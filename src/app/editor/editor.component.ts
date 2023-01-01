@@ -5,6 +5,8 @@ import {marked} from "marked";
 import katex from "katex";
 import {DomSanitizer} from "@angular/platform-browser";
 import { Router } from '@angular/router';
+import {MatDialog} from "@angular/material/dialog";
+import {DialogComponent} from "../dialog/dialog.component";
 
 @Component({
   selector: 'app-editor',
@@ -23,7 +25,7 @@ export class EditorComponent {
   // editor: SimpleMDE | null = null;
   showNote = false;
 
-  constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer, private router: Router) {
+  constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog) {
     this.route.params.subscribe(params => {
       this.note = {name: params['name'], path: params['path'], tags: params['tags'], content: params['content'], external: params['external'], saved: params['saved'], lastModified: params['lastModified'], images: params['images']};
       this.showNote = true;
@@ -45,31 +47,26 @@ export class EditorComponent {
   }
 
   closeEditor() {
-
-    // dialog the user if they would like to name the note if it is named "Untitled"
-    // if the note is named "Untitled", then the user should be prompted to name the note
-    // if the note is not named "Untitled", then the user should not be prompted to name the note
-    if (this.note != null && this.note.name === "") {
+    if (this.note != null && this.note.name === "") { // if the note has no name
       // update the last modified time
       this.note.lastModified = Date.now();
       // prompt the user to name the note
-      while(true) {
-        let name = prompt("Please name your note."); // TODO make this a material design dialog
-        if (name != null) {
-          // check if the name is valid as a file name
-          if (name.match(/^[a-zA-Z0-9_\-\.]+$/)) {
-            this.note.name = name;
-            break;
-          } else {
-            alert("Invalid file name.");
+        let userInput = this.dialog.open(DialogComponent, {
+          data: { title: "Please name the note", message: "Untitled", type: "prompt" }
+        });
+        userInput.afterClosed().subscribe(name => {
+          if (name != null && name !== "" && this.note != null) {
+            // check if the name is valid as a file name
+            if (name.match(/^[a-zA-Z0-9_\-\.]+$/)) {
+              this.note.name = name;
+              this.note.saved = false;
+            } else {
+              this.dialog.open(DialogComponent, {
+                data: { title: "Invalid file name", message: "The file name you entered is invalid. Defaulting to Untitled.", type: "alert" }
+              });
+            }
           }
-        } else { // user rejected the prompt
-          this.note.name = "Untitled"; // remove the invisible character
-          this.showNote = false;
-          this.router.navigate(["/"]).then(() => {});
-          return;
-        }
-      }
+        });
     }
     this.note = null;
     this.router.navigate(['/']).then(() => {});
@@ -108,6 +105,9 @@ export class EditorComponent {
     if ($event.key === "v" && $event.ctrlKey || $event.key === "v" && $event.metaKey) {
       // TODO implement this
     }
+    if (this.note) {
+      this.note.saved = false;
+    }
   }
 
   convertDate(lastModified: number) {
@@ -141,15 +141,21 @@ export class EditorComponent {
   }
 
   editNoteName(note: Note) {
-    // TODO make this a material design dialog
-    let name = prompt("Please enter a new name for the note.", note.name);
+    let userInput = this.dialog.open(DialogComponent, {
+      data: { title: "Enter a new name for the note", message: note.name, type: "prompt" }
+    });
+    userInput.afterClosed().subscribe(name => {
     if (name != null) {
       // check if the name is valid as a file name
       if (name.match(/^[a-zA-Z0-9_\-\.]+$/)) {
         note.name = name;
       } else {
-        alert("Invalid file name.");
+        // invalid file name
+        this.dialog.open(DialogComponent, {
+          data: { title: "Invalid file name", message: "The file name you entered is invalid.", type: "alert" }
+        });
       }
     }
+  });
   }
 }
