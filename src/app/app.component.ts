@@ -55,7 +55,7 @@ export class AppComponent {
             }
           }
           // this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
-          this.notes.push({name: file.name.slice(0, -3), path: relativePath, tags: tags, content: text, external: true, saved: true, lastModified: file.lastModified});
+          this.notes.push({name: file.name.slice(0, -3), path: relativePath, tags: tags, content: text, external: true, saved: true, lastModified: file.lastModified, images: []});
           this.notes[this.notes.length - 1].saved = true;
         }
       }
@@ -98,8 +98,8 @@ export class AppComponent {
 
   newNote() {
     // create a new note
-    let name = "\u200BUntitled"; // adding an invisible character for prompt rejection and avoidance of re-prompts
-    this.notes.push({name: name, path: "", tags: [], content: "", external: false, saved: false, lastModified: Date.now()});
+    let name = "Untitled"; // adding an invisible character for prompt rejection and avoidance of re-prompts
+    this.notes.push({name: name, path: "", tags: [], content: "", external: false, saved: false, lastModified: Date.now(), images: []});
     this.selectNote(this.notes[this.notes.length - 1]);
   }
 
@@ -225,7 +225,10 @@ export class AppComponent {
     html = html.replace(/\$\$([^]*?)\$\$/g, (match, p1) => {
       return katex.renderToString(p1, {displayMode: true});
     });
-
+    html = html.replace(/\$([^]*?)\$/g, (match, p1) => {
+      let newHtml = katex.renderToString(p1, {displayMode: false});
+      return `${newHtml}`;
+    });
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 

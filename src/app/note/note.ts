@@ -1,3 +1,6 @@
+import {marked} from "marked";
+import Image = marked.Tokens.Image;
+
 export interface Note {
   lastModified: number;
   name: string;
@@ -6,4 +9,5 @@ export interface Note {
   content: string;
   external: boolean;
   saved: boolean;
+  images: Image[];
 }

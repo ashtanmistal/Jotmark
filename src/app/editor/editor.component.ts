@@ -25,7 +25,7 @@ export class EditorComponent {
 
   constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer, private router: Router) {
     this.route.params.subscribe(params => {
-      this.note = {name: params['name'], path: params['path'], tags: params['tags'], content: params['content'], external: params['external'], saved: params['saved'], lastModified: params['lastModified']};
+      this.note = {name: params['name'], path: params['path'], tags: params['tags'], content: params['content'], external: params['external'], saved: params['saved'], lastModified: params['lastModified'], images: params['images']};
       this.showNote = true;
     });
   }
@@ -36,6 +36,11 @@ export class EditorComponent {
     html = html.replace(/\$\$([^]*?)\$\$/g, (match, p1) => {
       return katex.renderToString(p1, {displayMode: true});
     });
+    // for inline equations, include it in a div or something because it doesn't work otherwise
+    html = html.replace(/\$([^]*?)\$/g, (match, p1) => {
+      let newHtml = katex.renderToString(p1, {displayMode: false});
+      return `${newHtml}`;
+    });
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
@@ -44,12 +49,12 @@ export class EditorComponent {
     // dialog the user if they would like to name the note if it is named "Untitled"
     // if the note is named "Untitled", then the user should be prompted to name the note
     // if the note is not named "Untitled", then the user should not be prompted to name the note
-    if (this.note != null && this.note.name === "\u200BUntitled") {
+    if (this.note != null && this.note.name === "") {
       // update the last modified time
       this.note.lastModified = Date.now();
       // prompt the user to name the note
       while(true) {
-        const name = prompt("Please name your note."); // TODO make this a material design dialog
+        let name = prompt("Please name your note."); // TODO make this a material design dialog
         if (name != null) {
           // check if the name is valid as a file name
           if (name.match(/^[a-zA-Z0-9_\-\.]+$/)) {
@@ -100,6 +105,9 @@ export class EditorComponent {
     // INCLUDING copy and paste
     // We need to implement something here if the user pastes images into the editor; it should create a new
     // image file and insert the image into the note using Markdown image syntax.
+    if ($event.key === "v" && $event.ctrlKey || $event.key === "v" && $event.metaKey) {
+      // TODO implement this
+    }
   }
 
   convertDate(lastModified: number) {
