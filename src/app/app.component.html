@@ -19,6 +19,17 @@
       <mat-menu #viewMenu="matMenu">
         <!-- view recently deleted notes -->
         <button mat-menu-item [matMenuTriggerFor]="recentlyDeletedMenu">Recently Deleted</button>
+        <button mat-menu-item [matMenuTriggerFor]="tagOptions"> Manage Tags</button>
+        <mat-menu #tagOptions="matMenu">
+          <ng-container *ngFor="let tag of totalTags">
+          <button mat-menu-item [matMenuTriggerFor]="manageTag"> {{tag}} </button>
+          <mat-menu #manageTag="matMenu">
+          <button mat-menu-item> <ngx-colors ngx-colors-trigger="click" [(ngModel)]=tagColors[this.totalTags.indexOf(tag)] (ngModelChange)="changeTagColor($event, tag)"></ngx-colors>
+            </button>
+            <button mat-menu-item (click)="deleteTag(tag)">Delete Tag</button>
+        </mat-menu>
+        </ng-container>
+        </mat-menu>
         <button mat-menu-item (click)="appearanceMenu()">Appearance</button>
         <button mat-menu-item (click)="toggleFullScreen()">Toggle Full Screen</button>
         <!-- TODO make the view menu - all of these actions need to be implemented. Add any additional actions you want to the menu. -->
@@ -30,6 +41,10 @@
       <!-- the preferences menu is in app-preferences. Open it by calling openPreferencesMenu() -->
       <button mat-menu-item (click)="openHelpMenu()">Help</button>
     </mat-menu>
+    <span>Jotmark</span>
+    <mat-form-field class="search-bar" style="width: content-box; height: inherit; margin: 5px 10px;">
+      <input matInput placeholder="Search" [(ngModel)]="searchTerm">
+    </mat-form-field>
     <button mat-icon-button [matMenuTriggerFor]="tagMenu">
       <mat-icon>label</mat-icon>
     </button>
@@ -42,20 +57,13 @@
         </mat-selection-list>
       </ng-template>
     </mat-menu>
-    <span class="spacer"></span>
-    <span>Jotmark</span>
-    <span class="spacer"></span>
-    <span class="spacer"></span>
-    <mat-form-field class="search-bar" style="width: content-box; height: inherit; margin: 5px 10px;">
-      <input matInput placeholder="Search" [(ngModel)]="searchTerm">
-    </mat-form-field>
   </mat-toolbar-row>
 </mat-toolbar>
 
 <div class="main-ui">
   <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;">
     <!-- if there are no notes, display a message -->
-    <div *ngIf="notes.length === 0" class="no-notes-message">
+    <div *ngIf="notes.length === 0" class="no-notes-message" [style.background-color]="defaultColor">
       <mat-card style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
         <mat-card-title style="margin: 10px;">
           No notes found
@@ -71,8 +79,9 @@
       </mat-card>
     </div>
   <ng-container *ngFor="let note of searchNotes(notes)">
-    <mat-card class="note-card">
-      <div style="max-height: 200px; overflow: auto">
+    <!-- if there is a tag connected to the note, and if there is a color associated with that tag, set the background color of the note to that color -->
+    <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor">
+      <div style="max-height: 300px; overflow: auto">
       <mat-card-content (click)="handleNoteClick(note, $event)"> <!-- moved from the note card to the content so it does not interfere with tags -->
         <div [innerHTML]="parseAndRender(note.content)" style="overflow: auto"></div>
         <div class="fill-remaining-space"></div>
@@ -96,7 +105,7 @@
           <mat-menu #tagMenu="matMenu">
             <!-- make a button for adding a new tag to the note that calls addTagToNote() -->
             <!-- on click it should open a material design dialog that asks for the tag name -->
-            <button mat-menu-item (click)="addNewTagToNote(note)">Add Tag</button>
+            <button mat-menu-item (click)="addNewTagToNote(note)">New Tag</button>
             <!-- for each tag in the tags list, add a menu item that adds the tag to the note -->
             <ng-container *ngFor="let tag of totalTags">
               <button mat-menu-item (click)="addTagToNote(note, tag)">{{tag}}</button>

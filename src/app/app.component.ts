@@ -4,6 +4,7 @@ import {marked} from 'marked';
 import katex from 'katex';
 import {DomSanitizer} from "@angular/platform-browser";
 import {Router} from '@angular/router';
+import { NgxColorsModule } from 'ngx-colors';
 
 @Component({
   selector: 'app-root',
@@ -20,6 +21,8 @@ export class AppComponent {
   selectedTags: string[] = [];
   recentlyDeleted: Note[] = [];
   recentlyDeletedIndices: number[] = [];
+  tagColors: any[] = [];
+  defaultColor: string = "#ffffff";
   constructor(private sanitizer: DomSanitizer, private router: Router) {}
 
   openPreferencesMenu() {
@@ -84,6 +87,7 @@ export class AppComponent {
             let subDirectory = relativePath.substring(relativePath.indexOf("/") + 1, relativePath.slice(relativePath.indexOf("/") + 1).indexOf("/") + relativePath.indexOf("/") + 1);
             if (!this.totalTags.includes(subDirectory)) {
               this.totalTags.push(subDirectory);
+              this.tagColors.push(this.defaultColor);
             }
           }
         }
@@ -260,6 +264,7 @@ export class AppComponent {
     if (tag != null) {
       if (!this.totalTags.includes(tag)) {
         this.totalTags.push(tag);
+        this.tagColors.push(this.defaultColor);
       }
       if (!note.tags.includes(tag)) {
         note.tags.push(tag);
@@ -341,5 +346,18 @@ export class AppComponent {
     // remove from the recently deleted array
     this.recentlyDeleted.splice(index, 1);
     this.recentlyDeletedIndices.splice(index, 1);
+  }
+
+  deleteTag(tag: string) {
+    for (let note of this.notes) {
+      note.tags.splice(note.tags.indexOf(tag), 1);
+    }
+    this.totalTags.splice(this.totalTags.indexOf(tag), 1);
+    this.tagColors.splice(this.totalTags.indexOf(tag), 1);
+  }
+
+  changeTagColor(tag: string, color: any) {
+    // change the color of the given tag
+    this.tagColors[this.totalTags.indexOf(tag)] = color;
   }
 }

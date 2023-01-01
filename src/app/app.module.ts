@@ -19,6 +19,7 @@ import {MatChipsModule} from "@angular/material/chips";
 import {MatInputModule} from "@angular/material/input";
 import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatListModule} from "@angular/material/list";
+import {NgxColorsModule} from "ngx-colors";
 
 
 @NgModule({
@@ -43,7 +44,8 @@ import {MatListModule} from "@angular/material/list";
     MatChipsModule,
     MatInputModule,
     MatCheckboxModule,
-    MatListModule
+    MatListModule,
+    NgxColorsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
