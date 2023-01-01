@@ -4,7 +4,6 @@ import {marked} from 'marked';
 import katex from 'katex';
 import {DomSanitizer} from "@angular/platform-browser";
 import {Router} from '@angular/router';
-import {filter} from "rxjs";
 
 @Component({
   selector: 'app-root',
@@ -14,12 +13,13 @@ import {filter} from "rxjs";
 export class AppComponent {
   title = 'Jotmark';
   notes: Note[] = [];
-  sidenav: any;
   path: string = "";
   selectedNote: Note | null = null;
   totalTags: string[] = [];
   searchTerm: string = "";
   selectedTags: string[] = [];
+  recentlyDeleted: Note[] = [];
+  recentlyDeletedIndices: number[] = [];
   constructor(private sanitizer: DomSanitizer, private router: Router) {}
 
   openPreferencesMenu() {
@@ -93,7 +93,9 @@ export class AppComponent {
   }
 
   newNote() {
-    this.notes.push({name: "Untitled", path: "", tags: [], content: "", external: false, saved: false, lastModified: Date.now()});
+    // create a new note
+    let name = "\u200BUntitled"; // adding an invisible character for prompt rejection and avoidance of re-prompts
+    this.notes.push({name: name, path: "", tags: [], content: "", external: false, saved: false, lastModified: Date.now()});
     this.selectNote(this.notes[this.notes.length - 1]);
   }
 
@@ -122,8 +124,7 @@ export class AppComponent {
 
   saveAsAllNotes() {
     // save the current directory to a temporary location
-    const tempPath = this.path;
-    // select a folder from the file system and save all notes there
+// select a folder from the file system and save all notes there
     const input = document.createElement('input');
     input.type = 'file';
     input.webkitdirectory = true;
@@ -207,15 +208,9 @@ export class AppComponent {
     // pretty sure we can just have it write F11 or something simple like that
   }
 
-  refreshNotes() {
-    // refresh the notes
-    // TODO: implement refresh notes -- I don't know if we even need this
-    // if we remove it here we need to remove it from the menu as well
-  }
-
   selectNote(note: Note) {
     this.selectedNote = note;
-    this.router.navigate(['/editor', this.selectedNote]);
+    this.router.navigate(['/editor', this.selectedNote]).then(() => {});
   }
 
   parseAndRender(content: string) {
@@ -232,12 +227,12 @@ export class AppComponent {
 
   deselectNote() {
     this.selectedNote = null;
-    this.router.navigate(['/editor', this.selectedNote]); // should it be this, or just .navigate(['/'])?
+    this.router.navigate(['/editor', this.selectedNote]).then(() => {}); // should it be this, or just .navigate(['/'])?
   }
 
   handleNoteClick(note: Note, event: MouseEvent) {
-    // if the user right clicked, open the context menu
-    // if the user left clicked, select the note
+    // if the user right-clicked, open the context menu
+    // if the user left-clicked, select the note
     if (event.button === 0) {
       if (this.selectedNote === note) {
         this.deselectNote();
@@ -254,11 +249,6 @@ export class AppComponent {
     // remove the tag from the note at the given index
     note.tags.splice(number, 1);
     $event.stopPropagation(); // this prevents the note from being selected
-  }
-
-  openTagMenu(note: Note) {
-    // open the tag menu
-
   }
 
   addNewTagToNote(note: Note) {
@@ -287,8 +277,12 @@ export class AppComponent {
 
   filterByTag(tag: string) {
     // filter the notes by the given tag
-    // TODO: implement filter by tag
-
+    // if the tag is already selected, deselect it
+    if (this.selectedTags.includes(tag)) {
+      this.selectedTags.splice(this.selectedTags.indexOf(tag), 1);
+    } else {
+      this.selectedTags.push(tag);
+    }
   }
 
   deleteNoteByIndex($event: MouseEvent, number: number) {
@@ -297,6 +291,9 @@ export class AppComponent {
     const userPrompt = confirm("Are you sure you want to delete this note?");
 // TODO change the confirm to be a material dialog and not a browser dialog
     if (userPrompt) {
+      // add the note to recently deleted
+      this.recentlyDeleted.push(this.notes[number]);
+      this.recentlyDeletedIndices.push(number);
       this.notes.splice(number, 1);
     }
     $event.stopPropagation();
@@ -336,5 +333,13 @@ export class AppComponent {
     } else {
       this.selectedTags.push(tag);
     }
+  }
+  restoreDeleted(note: Note) {
+    let index = this.recentlyDeleted.indexOf(note);
+    // add to the notes array at the index
+    this.notes.splice(this.recentlyDeletedIndices[index], 0, note);
+    // remove from the recently deleted array
+    this.recentlyDeleted.splice(index, 1);
+    this.recentlyDeletedIndices.splice(index, 1);
   }
 }

@@ -27,7 +27,6 @@
     "marked": "^4.2.5",
     "ngx-markdown": "^15.0.0",
     "rxjs": "~7.5.0",
-    "simplemde": "^1.11.2",
     "tslib": "^2.3.0",
     "zone.js": "~0.12.0"
   },

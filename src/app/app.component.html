@@ -1,6 +1,5 @@
 <!-- include the stylesheet -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" crossorigin="anonymous">
-
 <mat-toolbar>
   <mat-toolbar-row>
     <button mat-icon-button [matMenuTriggerFor]="menu">
@@ -16,34 +15,27 @@
         <button mat-menu-item (click)="saveAsAllNotes()">Save As</button>
         <button mat-menu-item (click)="clearNotes()">Clear Notes</button>
       </mat-menu>
-      <button mat-menu-item [matMenuTriggerFor]="editMenu">Edit</button>
-      <mat-menu #editMenu="matMenu">
-        <!-- TODO add keyboard shortcuts for the items below -->
-        <button mat-menu-item (click)="undo()">Undo</button>
-        <button mat-menu-item (click)="redo()">Redo</button>
-        <button mat-menu-item (click)="cut()">Cut</button>
-        <button mat-menu-item (click)="copy()">Copy</button>
-        <button mat-menu-item (click)="paste()">Paste</button>
-        <!-- TODO make the edit menu - all of these actions need to be implemented. Add any additional actions you want to the menu. -->
-      </mat-menu>
       <button mat-menu-item [matMenuTriggerFor]="viewMenu">View</button>
       <mat-menu #viewMenu="matMenu">
+        <!-- view recently deleted notes -->
+        <button mat-menu-item [matMenuTriggerFor]="recentlyDeletedMenu">Recently Deleted</button>
         <button mat-menu-item (click)="appearanceMenu()">Appearance</button>
         <button mat-menu-item (click)="toggleFullScreen()">Toggle Full Screen</button>
         <!-- TODO make the view menu - all of these actions need to be implemented. Add any additional actions you want to the menu. -->
+        <mat-menu #recentlyDeletedMenu="matMenu">
+          <button mat-menu-item *ngFor="let note of recentlyDeleted" (click)="restoreDeleted(note)">{{note.name}}</button>
+        </mat-menu>
       </mat-menu>
       <button mat-menu-item (click)="openPreferencesMenu()">Preferences</button>
       <!-- the preferences menu is in app-preferences. Open it by calling openPreferencesMenu() -->
       <button mat-menu-item (click)="openHelpMenu()">Help</button>
     </mat-menu>
-    <!-- add a tag button that opens a selectable list of tags -->
-    <!-- when a tag is selected, it should be added to selectedTags -->
     <button mat-icon-button [matMenuTriggerFor]="tagMenu">
       <mat-icon>label</mat-icon>
     </button>
     <mat-menu #tagMenu="matMenu">
       <ng-template matMenuContent>
-        <mat-selection-list #tagList>
+        <mat-selection-list>
           <mat-list-option *ngFor="let tag of totalTags" [selected]="selectedTags.includes(tag)" (click)="toggleTag(tag)">
             {{tag}}
           </mat-list-option>
@@ -53,12 +45,7 @@
     <span class="spacer"></span>
     <span>Jotmark</span>
     <span class="spacer"></span>
-    <!-- on the right hand side of the toolbar, add a button that refreshes the notes list -->
-<!--    <button mat-icon-button (click)="refreshNotes()">-->
-<!--      <mat-icon>refresh</mat-icon>-->
-<!--    </button>-->
     <span class="spacer"></span>
-    <!-- add a search bar, centered on the menu, aligned to the right hand side of the toolbar -->
     <mat-form-field class="search-bar" style="width: content-box; height: inherit; margin: 5px 10px;">
       <input matInput placeholder="Search" [(ngModel)]="searchTerm">
     </mat-form-field>
@@ -69,11 +56,22 @@
   <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;">
     <!-- if there are no notes, display a message -->
     <div *ngIf="notes.length === 0" class="no-notes-message">
-      <p>No notes found.</p> <!-- TODO add a default thing where if clicked creates a new note or loads a directory -->
+      <mat-card style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <mat-card-title style="margin: 10px;">
+          No notes found
+        </mat-card-title>
+        <mat-card-content>
+          <p>Click the "New Note" button to create a new note.</p>
+          <p>Click the "Open Directory" button to open a directory of notes.</p>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button (click)="newNote()">New Note</button>
+          <button mat-button (click)="openDirectory()">Open Directory</button>
+        </mat-card-actions>
+      </mat-card>
     </div>
   <ng-container *ngFor="let note of searchNotes(notes)">
     <mat-card class="note-card">
-      <!-- include the content in a div with a max height and overflow scroll -->
       <div style="max-height: 200px; overflow: auto">
       <mat-card-content (click)="handleNoteClick(note, $event)"> <!-- moved from the note card to the content so it does not interfere with tags -->
         <div [innerHTML]="parseAndRender(note.content)" style="overflow: auto"></div>

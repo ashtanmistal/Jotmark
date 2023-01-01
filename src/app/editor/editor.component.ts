@@ -4,7 +4,6 @@ import {ActivatedRoute} from "@angular/router";
 import {marked} from "marked";
 import katex from "katex";
 import {DomSanitizer} from "@angular/platform-browser";
-// import SimpleMDE from "simplemde";
 import { Router } from '@angular/router';
 
 @Component({
@@ -31,33 +30,6 @@ export class EditorComponent {
     });
   }
 
-  // ngOnInit() {
-  //   // Initialize the SimpleMDE editor
-  //   this.editor = new SimpleMDE({
-  //     element: document.getElementById('editor') as HTMLTextAreaElement,
-  //     spellChecker: true,
-  //     toolbar: [
-  //       "bold", "italic", "heading", "|",
-  //       "quote", "unordered-list", "ordered-list", "|",
-  //       "link", "image", "|"],
-  //     status: true, // what does this do?
-  //   });
-  //   // pass the note's content to the editor
-  //   if (this.note != null) {
-  //     this.editor.value(this.note.content);
-  //   }
-  //   // on change, update the note's content
-  //   this.editor.codemirror.on("change", () => {
-  //     if (this.note != null && this.editor != null) {
-  //       this.note.content = this.editor.value();
-  //       this.note.saved = false;
-  //     }
-  //   });
-  //   return this.editor;
-  // }
-  // SimpleMDE is not working
-  // so we will just use a textarea for now
-
   parseAndRender(content: string) {
     // NOTE THIS IS THE SAME AS THE FUNCTION IN APP.COMPONENT.TS
     let html = marked(content);
@@ -72,7 +44,7 @@ export class EditorComponent {
     // dialog the user if they would like to name the note if it is named "Untitled"
     // if the note is named "Untitled", then the user should be prompted to name the note
     // if the note is not named "Untitled", then the user should not be prompted to name the note
-    if (this.note != null && this.note.name === "Untitled") {
+    if (this.note != null && this.note.name === "\u200BUntitled") {
       // update the last modified time
       this.note.lastModified = Date.now();
       // prompt the user to name the note
@@ -86,17 +58,16 @@ export class EditorComponent {
           } else {
             alert("Invalid file name.");
           }
-          // TODO add an invisible character to the initialized note, and when a user rejects the prompt, delete the invisible character so that the user is not prompted again
-        } else {
-          // if the user rejects the prompt, then close the editor
+        } else { // user rejected the prompt
+          this.note.name = "Untitled"; // remove the invisible character
           this.showNote = false;
-          this.router.navigate(["/"]);
+          this.router.navigate(["/"]).then(() => {});
           return;
         }
       }
     }
     this.note = null;
-    this.router.navigate(['/']);
+    this.router.navigate(['/']).then(() => {});
 
     // TODO: making this null doesn't allow the user to re-open the same note immediately after closing it without double clicking; fix this
   }
@@ -132,7 +103,7 @@ export class EditorComponent {
   }
 
   convertDate(lastModified: number) {
-    // convert the last modified date to a string like "September 23, 2020 at 12:00 PM"
+    // convert the last modified date to a string like "September 23, 2020, at 12:00 PM"
     const date = new Date(lastModified);
     const month = date.toLocaleString('default', {month: 'long'});
     const day = date.getDate();
