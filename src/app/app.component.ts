@@ -63,8 +63,8 @@ export class AppComponent {
               }
               tags.push(tag);
             }
-            // remove the first line so the user doesn't see it and break the tag system
-            text.replace(firstLine, "");
+            // remove the first line
+            text.substring(text.indexOf("\n") + 1);
           }
           // this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
           this.notes.push({name: file.name.slice(0, -3), path: relativePath, tags: tags, content: text, external: true, saved: true, lastModified: file.lastModified, images: []});
@@ -125,6 +125,10 @@ export class AppComponent {
     for (let i = 0; i < Note.tags.length; i++) {
       tags += Note.tags[i] + ", " + this.tagColors[this.totalTags.indexOf(Note.tags[i])] + "; ";
     }
+    // if note already begins with "[//]: # (tags: " then replace it
+    while (Note.content.startsWith("[//]: # (tags: ")) { // this is a while loop because there may be multiple lines from previous saves that need to be fixed
+      Note.content = Note.content.substring(Note.content.indexOf("\n") + 1);
+    }
     let content = "[//]: # (tags: " + tags + ")\n" + Note.content;
 
     let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
@@ -159,6 +163,8 @@ export class AppComponent {
           this.notes = [];
         }
       });
+    } else {
+      this.notes = [];
     }
   }
   appearanceMenu() {
@@ -340,5 +346,22 @@ export class AppComponent {
   clearRecentlyDeleted() {
     this.recentlyDeleted = [];
     this.recentlyDeletedIndices = [];
+  }
+
+  newChecklist() {
+    // TODO implement
+    // this should render checklists differently than normal lists by allowing the user to check off items
+    // this should also allow the user to add new items to the checklist
+  }
+
+  openRexfro(notes: Note[]) {
+    let dialog = this.dialog.open(DialogComponent, {
+      data: { type: "Rexfro", notes }
+    });
+    dialog.afterClosed().subscribe(result => {
+      if (result) {
+        this.notes = result;
+      }
+    });
   }
 }

@@ -9,6 +9,7 @@ import {Note} from "../note/note";
 })
 export class DialogComponent {
   note: Note | null = null;
+  notes: Note[] | null = null;
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private dialogRef: MatDialogRef<DialogComponent>) {

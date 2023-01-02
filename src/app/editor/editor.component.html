@@ -1,19 +1,19 @@
 <div *ngIf="showNote&&note" class="editor" style="border-radius: 5px">
-  <div style="background: #e8e8e8; padding: 5px; border-radius: 5px;">
+  <div style="background: #e8e8e8; padding: 5px">
     <mat-card-title (click)="editNoteName(note)"> <!--- note.name + ".md" -->
       {{note.name}}.md</mat-card-title>
     <mat-card-subtitle>Last Modified {{convertDate(note.lastModified)}}</mat-card-subtitle>
   </div>
   <!-- <textarea id="editor" name="editor" [(ngModel)]="note.content" style="width: 100%; height: auto;"></textarea> -->
-  <div class="card-container" style="align-content: center; display: flex; flex-direction: row; justify-content: center;" (click)="onEditorClick($event)" (keyup)="onEditorKeyUp($event)">
+  <div class="card-container" style="align-content: center; display: flex; flex-direction: row; justify-content: center; border-radius: 0" (click)="onEditorClick($event)" (keyup)="onEditorKeyUp($event)">
 
-    <mat-card class="editor-container">
-      <mat-card-content class="card-body" style="height: inherit;">
-        <textarea id="editor" name="editor" [(ngModel)]="note.content" style="width: 99%; height: 75vh; overflow: auto; resize: none; z-index: auto;" (keydown)="onTextAreaKeyDown($event)"></textarea>
+    <mat-card class="editor-container" style="border-radius: 0">
+      <mat-card-content class="card-body" style="height: inherit;border-radius: 0">
+        <textarea id="editor" name="editor" [(ngModel)]="note.content" style="width: 99%; height: 74vh; overflow: auto; resize: none; z-index: auto;" (keydown)="onTextAreaKeyDown($event)"></textarea>
       </mat-card-content>
     </mat-card>
-    <mat-card class="render-container">
-      <mat-card-content class="card-body">
+    <mat-card class="render-container" style="border-radius: 0">
+      <mat-card-content class="card-body" style="border-radius: 0">
         <div [innerHTML]="parseAndRender(note.content)"></div>
       </mat-card-content>
     </mat-card>

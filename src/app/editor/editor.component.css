@@ -23,7 +23,7 @@
   background: #f3f3f3;
   width:45vw;
   height: 78vh;
-  box-shadow: #c4c4c4 0 0 20px;
+  /*box-shadow: #c4c4c4 0 0 20px;*/
 }
 
 .editor-container {
@@ -32,6 +32,6 @@
   background: #e8e8e8;
   width:45vw;
   height: 78vh;
-  box-shadow: #c4c4c4 0 0 20px;
+  /*box-shadow: #c4c4c4 0 0 20px;*/
 }
 

@@ -1,0 +1,65 @@
+<!-- Rexfro is a find and replace operator that has 3 columns: -->
+<!-- 1. A two-columned table, with a regular expression to match and a replacement string -->
+<!-- 2. A checklist of all the notes with which to apply the find and replace table to -->
+<!-- 3. A preview pane, where a user can select one of the output notes and see the results of the find and replace operation before applying it to the note -->
+<mat-card class="rex-card">
+  <mat-card-header>
+    <mat-card-title>Rexfro Find and Replace</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <mat-card style="width: 20vw; height: 65vh">
+    <table mat-table [dataSource]="find" style="overflow: auto">
+      <ng-container matColumnDef="find">
+        <th mat-header-cell *matHeaderCellDef>Find</th>
+        <td mat-cell *matCellDef="let element">{{ element }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="replace">
+        <th mat-header-cell *matHeaderCellDef>Replace</th>
+        <td mat-cell *matCellDef="let element">
+          <input type="text" [(ngModel)]="replace[find.indexOf(element)]">
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns; let i = index"></tr>
+    </table>
+    <button mat-icon-button (click)="addRow()">
+      <mat-icon>add</mat-icon>
+    </button>
+    </mat-card>
+
+    <mat-card style="width: 20vw; height: 65vh">
+    <mat-selection-list>
+      <mat-list-option *ngFor="let note of notes" [selected]="selectedNotes.includes(note)" (click)="toggleNote(note)">
+        {{note.name}}
+      </mat-list-option>
+    </mat-selection-list>
+    <button mat-icon-button (click)="selectAll()">
+      <mat-icon>check_box</mat-icon>
+    </button>
+    <button mat-icon-button (click)="deselectAll()">
+      <mat-icon>check_box_outline_blank</mat-icon>
+    </button>
+    <button mat-icon-button (click)="invertSelection()">
+      <mat-icon>indeterminate_check_box</mat-icon>
+    </button>
+    </mat-card>
+
+    <mat-card style="width: 20vw; height: 65vh">
+    <button mat-button [mat-menu-trigger-for]="selectedNotesMenu"> Preview</button>
+    <mat-menu #selectedNotesMenu="matMenu">
+      <button mat-menu-item *ngFor="let note of selectedNotes" (click)="preview(note)">
+        {{note.name}}
+      </button>
+    </mat-menu>
+    <mat-card *ngIf="previewNote">
+      <mat-card-title>{{ previewNote.name}}</mat-card-title>
+      <mat-card-content [innerHtml]="parseAndRender(rexfroNote(previewNote))"></mat-card-content>
+    </mat-card>
+    </mat-card>
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-button (click)="apply()">Apply</button>
+  </mat-card-actions>
+</mat-card>

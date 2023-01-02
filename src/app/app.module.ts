@@ -22,6 +22,8 @@ import {MatListModule} from "@angular/material/list";
 import {NgxColorsModule} from "ngx-colors";
 import { DialogComponent } from './dialog/dialog.component';
 import {MatDialogModule} from "@angular/material/dialog";
+import { RexfroComponent } from './rexfro/rexfro.component';
+import {MatTableModule} from "@angular/material/table";
 
 
 @NgModule({
@@ -30,7 +32,8 @@ import {MatDialogModule} from "@angular/material/dialog";
     EditorComponent,
     SettingsComponent,
     NoteComponent,
-    DialogComponent
+    DialogComponent,
+    RexfroComponent
   ],
   imports: [
     BrowserModule,
@@ -49,7 +52,8 @@ import {MatDialogModule} from "@angular/material/dialog";
     MatCheckboxModule,
     MatListModule,
     NgxColorsModule,
-    MatDialogModule
+    MatDialogModule,
+    MatTableModule
   ],
   providers: [],
   bootstrap: [AppComponent]
