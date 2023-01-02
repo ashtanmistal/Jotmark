@@ -22,16 +22,16 @@
   overflow: auto;
   background: #f3f3f3;
   width:45vw;
-  height: 80vh;
+  height: 78vh;
   box-shadow: #c4c4c4 0 0 20px;
 }
 
 .editor-container {
   /* this is the container for the editor, where the user types */
-  overflow: auto;
+  overflow: hidden;
   background: #e8e8e8;
   width:45vw;
-  height: 80vh;
+  height: 78vh;
   box-shadow: #c4c4c4 0 0 20px;
 }
 

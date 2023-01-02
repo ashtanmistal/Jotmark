@@ -161,32 +161,6 @@ export class AppComponent {
       });
     }
   }
-
-  undo() {
-    // undo the last action
-    // TODO: implement undo IFF functionality does not already exist in the editor by default
-  }
-
-  redo() {
-    // redo the last action
-    // TODO: implement redo IFF functionality does not already exist in the editor by default
-  }
-
-  cut() {
-    // cut the selected text
-    // TODO: implement cut -- NOT a priority
-  }
-
-  copy() {
-    // copy the selected text
-    // TODO: implement copy -- NOT a priority
-  }
-
-  paste() {
-    // paste the selected text
-    // TODO: implement paste -- NOT a priority
-  }
-
   appearanceMenu() {
     // open the appearance menu
     // this is a subset of the Preferences menu
@@ -202,7 +176,16 @@ export class AppComponent {
 
   selectNote(note: Note) {
     this.selectedNote = note;
-    this.router.navigate(['/editor', this.selectedNote]).then(() => {});
+    // this.router.navigate(['/editor', this.selectedNote]).then(() => {});
+    let output = this.dialog.open(DialogComponent, {
+      data: { type: "editor", note: note }
+    });
+    output.afterClosed().subscribe(result => {
+      if (result) {
+        this.selectedNote = null;
+        // this.selectedNote = result; // update the selected note just in case
+      }
+    });
   }
 
   parseAndRender(content: string) {
@@ -222,22 +205,11 @@ export class AppComponent {
 
   deselectNote() {
     this.selectedNote = null;
-    this.router.navigate(['/editor', this.selectedNote]).then(() => {}); // should it be this, or just .navigate(['/'])?
+    // this.router.navigate(['/editor', this.selectedNote]).then(() => {}); // should it be this, or just .navigate(['/'])?
   }
 
-  handleNoteClick(note: Note, event: MouseEvent) {
-    // if the user right-clicked, open the context menu
-    // if the user left-clicked, select the note
-    if (event.button === 0) {
-      if (this.selectedNote === note) {
-        this.deselectNote();
-      } else {
-        this.selectNote(note);
-      }
-    } else if (event.button === 2) {
-      // TODO: implement context menu
-    }
-
+  handleNoteClick(note: Note) {
+    this.selectNote(note);
   }
 
   removeTagFromNoteByIndex(note: Note, $event: MouseEvent, number: number) {
@@ -253,7 +225,7 @@ export class AppComponent {
     });
     tag.afterClosed().subscribe(result => {
       if (result) {
-        if (this.totalTags.includes(result)) {
+        if (!this.totalTags.includes(result)) {
           this.totalTags.push(result);
           this.tagColors.push(this.defaultColor);
         }

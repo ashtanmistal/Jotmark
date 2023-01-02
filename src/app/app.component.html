@@ -93,7 +93,7 @@
     <!-- if there is a tag connected to the note, and if there is a color associated with that tag, set the background color of the note to that color -->
     <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor">
       <div style="max-height: 300px; overflow: auto">
-      <mat-card-content (click)="handleNoteClick(note, $event)"> <!-- moved from the note card to the content so it does not interfere with tags -->
+      <mat-card-content (click)="handleNoteClick(note)"> <!-- moved from the note card to the content so it does not interfere with tags -->
         <!-- if the note content is empty, then render a placeholder "empty note" message -->
         <ng-container *ngIf="note.content.length === 0">
           <p style="color: #888888; font-style: italic;">Empty note. Click to edit.</p>
@@ -132,7 +132,7 @@
     </mat-card>
   </ng-container>
   </div>
-  <div class="editor" style="position: fixed; z-index: 2;">
-    <app-editor *ngIf="selectedNote" [note]="selectedNote"></app-editor>
-  </div>
+<!--  <div class="editor" style="position: fixed; z-index: 2;">-->
+<!--    <app-editor *ngIf="selectedNote" [note]="selectedNote"></app-editor>-->
+<!--  </div>-->
 </div>

@@ -107,6 +107,7 @@ export class EditorComponent {
     }
     if (this.note) {
       this.note.saved = false;
+      this.note.lastModified = Date.now();
     }
   }
 

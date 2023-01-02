@@ -14,3 +14,10 @@
   border-radius: 5px;
 
 }
+
+.editor {
+  margin: 10px;
+  border-radius: 5px;
+  width: 85%;
+  height: 85%;
+}

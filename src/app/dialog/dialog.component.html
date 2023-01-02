@@ -45,3 +45,8 @@
     </mat-card-actions>
   </mat-card>
 </ng-container>
+
+<!-- include the editor as its own alert, so that the user can click off of it to close it -->
+<ng-container *ngIf="data.type=== 'editor'">
+  <app-editor (close)="closeDialog(note)" [note]="note"></app-editor>
+</ng-container>
