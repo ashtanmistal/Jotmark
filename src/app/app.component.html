@@ -81,7 +81,7 @@
 </mat-toolbar>
 
 <div class="main-ui">
-  <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;">
+  <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;" cdkDropList [cdkDropListData]="notes" (cdkDropListDropped)="drop($event)">
     <!-- if there are no notes, display a message -->
     <div *ngIf="notes.length === 0" class="no-notes-message" [style.background-color]="defaultColor">
       <mat-card style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
@@ -98,9 +98,9 @@
         </mat-card-actions>
       </mat-card>
     </div>
-  <ng-container *ngFor="let note of searchNotes(notes)" style="width: 80%; position: center;">
+  <ng-container *ngFor="let note of searchNotes(notes)">
     <!-- if there is a tag connected to the note, and if there is a color associated with that tag, set the background color of the note to that color -->
-    <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor">
+    <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor" cdkDrag (cdkDragStarted)="onDragStart($event)" (cdkDragEnded)="onDragEnd($event)">
       <div style="max-height: 300px; overflow: auto">
       <mat-card-content (click)="handleNoteClick(note)"> <!-- moved from the note card to the content so it does not interfere with tags -->
         <!-- if the note content is empty, then render a placeholder "empty note" message -->

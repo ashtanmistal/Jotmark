@@ -9,10 +9,9 @@ import FileSaver from 'file-saver';
 import {MatDialog} from "@angular/material/dialog";
 import {DialogComponent} from "./dialog/dialog.component";
 import JSZip from "jszip";
-import { HttpClientModule } from "@angular/common/http";
 import { HttpClient } from "@angular/common/http";
-import {mark} from "@angular/compiler-cli/src/ngtsc/perf/src/clock";
 import { LatexService } from './latex.service';
+import {CdkDragDrop, CdkDragEnd, CdkDragStart, moveItemInArray} from "@angular/cdk/drag-drop";
 
 @Component({
   selector: 'app-root',
@@ -31,6 +30,7 @@ export class AppComponent {
   recentlyDeletedIndices: number[] = [];
   tagColors: any[] = [];
   defaultColor: string = "#ffffff";
+  isDragging: boolean = false;
   constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService) {}
 
   openPreferencesMenu() {
@@ -214,13 +214,10 @@ export class AppComponent {
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
-  deselectNote() {
-    this.selectedNote = null;
-    // this.router.navigate(['/editor', this.selectedNote]).then(() => {}); // should it be this, or just .navigate(['/'])?
-  }
-
   handleNoteClick(note: Note) {
-    this.selectNote(note);
+    if (!this.isDragging) {
+      this.selectNote(note);
+    }
   }
 
   removeTagFromNoteByIndex(note: Note, $event: MouseEvent, number: number) {
@@ -353,12 +350,6 @@ export class AppComponent {
     this.recentlyDeletedIndices = [];
   }
 
-  newChecklist() {
-    // TODO implement
-    // this should render checklists differently than normal lists by allowing the user to check off items
-    // this should also allow the user to add new items to the checklist
-  }
-
   openRexfro(notes: Note[]) {
     let dialog = this.dialog.open(DialogComponent, {
       data: { type: "Rexfro", notes }
@@ -383,7 +374,8 @@ export class AppComponent {
         note.content = note.content.substring(note.content.indexOf("\n") + 1);
       }
       let content = "[//]: # (tags: " + tags + ")\n" + note.content;
-      zip.file(note.path + "/" + note.name + ".md", content);
+      console.log(note.path);
+      zip.file(note.path, content);
     }
     zip.generateAsync({ type: "blob" }).then(content => {
       FileSaver.saveAs(content, "notes.zip");
@@ -395,10 +387,24 @@ export class AppComponent {
     let zip = new JSZip();
     for (let note of this.notes) {
       let content = this.converter.convertToLatex(note.name, note.content, note.lastModified);
-      zip.file(note.path + "/" + note.name + ".tex", content);
+      // remove the .md from the path
+      let path = note.path.substring(0, note.path.length - 3) + ".tex";
+      zip.file(path, content);
     }
     zip.generateAsync({ type: "blob" }).then(content => {
       FileSaver.saveAs(content, "notes-latex.zip");
     });
+  }
+
+  drop($event: CdkDragDrop<Note[], any>) {
+    moveItemInArray(this.notes, $event.previousIndex, $event.currentIndex);
+  }
+
+  onDragEnd($event: CdkDragEnd) {
+    this.isDragging = false;
+  }
+
+  onDragStart($event: CdkDragStart) {
+    this.isDragging = true;
   }
 }

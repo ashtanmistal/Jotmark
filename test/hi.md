@@ -32,6 +32,7 @@ $$
 $$
 
 ## Let's add some tables
+
 | This | is   |
 |------|------|
 |   a  | table|
