@@ -25,6 +25,7 @@ import {MatDialogModule} from "@angular/material/dialog";
 import { RexfroComponent } from './rexfro/rexfro.component';
 import {MatTableModule} from "@angular/material/table";
 import {HttpClientModule} from "@angular/common/http";
+import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
 
 
 @NgModule({
@@ -55,7 +56,9 @@ import {HttpClientModule} from "@angular/common/http";
     NgxColorsModule,
     MatDialogModule,
     MatTableModule,
-    HttpClientModule
+    HttpClientModule,
+    CdkDropList,
+    CdkDrag
   ],
   providers: [],
   bootstrap: [AppComponent]

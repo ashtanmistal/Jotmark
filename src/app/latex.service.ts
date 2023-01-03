@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 })
 export class LatexService {
 
-  constructor(private http: HttpClient) {
+  constructor() {
   }
 
   private preamble = "% default preamble for LaTeX document; the user can overwrite this in their own preamble. The default preamble is:\n\
@@ -201,5 +201,5 @@ public convertToLatex(name: string, markdown: string, lastModified: number) {
     // Return the LaTeX cells as a row
     return ' & '.repeat(latexCells.length - 1) + latexCells.join(' & ');
   }
-  
+
   }
