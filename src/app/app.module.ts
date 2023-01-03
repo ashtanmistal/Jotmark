@@ -24,6 +24,7 @@ import { DialogComponent } from './dialog/dialog.component';
 import {MatDialogModule} from "@angular/material/dialog";
 import { RexfroComponent } from './rexfro/rexfro.component';
 import {MatTableModule} from "@angular/material/table";
+import {HttpClientModule} from "@angular/common/http";
 
 
 @NgModule({
@@ -53,7 +54,8 @@ import {MatTableModule} from "@angular/material/table";
     MatListModule,
     NgxColorsModule,
     MatDialogModule,
-    MatTableModule
+    MatTableModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -12,6 +12,11 @@
         <button mat-menu-item (click)="openDirectory()">Open Directory</button>
         <button mat-menu-item (click)="newNote()">New Note</button>
         <button mat-menu-item (click)="saveAllNotes()">Save</button>
+        <button mat-menu-item [mat-menu-trigger-for]="exportMenu">Export</button>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="exportAllNotes()">Export As Zip</button>
+          <button mat-menu-item (click)="exportLaTeX()">Export As LaTeX (Zipped)</button>
+        </mat-menu>
         <button mat-menu-item [matMenuTriggerFor]="recentlyDeletedMenu">Recently Deleted</button>
         <mat-menu #recentlyDeletedMenu="matMenu">
           <ng-container *ngIf="recentlyDeleted.length === 0">
