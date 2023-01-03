@@ -1,0 +1,55 @@
+% default preamble for LaTeX document; the user can overwrite this in their own preamble. The default preamble is:
+\documentclass[11pt,fleqn]{exam}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fancyvrb}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usepackage{esint} % needed for \oiint
+\usepackage{amsthm  }
+\usepackage[margin=0.98in]{geometry}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+\usepackage{standalone}
+\usepackage{titling}
+\usepackage{braket}
+\usepackage{float}
+\usepackage{color}
+\usetikzlibrary{arrows,arrows.meta,positioning,intersections,shapes.gates.logic.US,calc}
+\algnewcommand\algorithmicforeach{\textbf{for each}}
+\algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
+\newcommand{\fillinMCmath}[1]{\begin{tikzpicture}\draw circle [radius=0.5em];\end{tikzpicture}\ #1}
+\newcommand{\fillinMCmathsoln}[1]{\begin{tikzpicture}\draw[black, fill=blue] circle [radius=0.5em];\end{tikzpicture}\ #1}
+\restylefloat{table}
+\newcommand{\NN}{\mathbb{N}} % Naturals
+\newcommand{\ZZ}{\mathbb{Z}} % Integers
+\newcommand{\QQ}{\mathbb{Q}} % Rationals
+\newcommand{\RR}{\mathbb{R}} % Reals
+\newcommand{\CC}{\mathbb{C}} % Imaginaries
+\newcommand{\HH}{\mathbb{H}} % Quaternions
+\newcommand{\FF}{\mathbb{F}} % Field
+\newcommand{\ud}{\,\mathrm{d}} % Single-var differential (use like \partial)
+\newcommand{\CoulombConstant}{\frac{1}{4\pi\epsilon_0}}
+\DeclareMathOperator{\erf}{erf} % Error Function
+\DeclareMathOperator{\erfc}{erfc} % Complementary Error Function
+\DeclareMathOperator{\erfi}{erfi} % Imaginary Error Function
+\DeclareMathOperator{\row}{row} % Matrix Row
+\DeclareMathOperator{\col}{col} % Matrix Column
+\DeclareMathOperator{\trace}{tr} % Matrix Trace
+\DeclareMathOperator{\proj}{proj} % Vector Projection
+\DeclareMathOperator{\curl}{curl}
+\DeclareMathOperator{\grad}{grad}
+\DeclareMathOperator{\divg}{div}
+\definecolor{solnblue}{rgb}{0,0,1}
+\newenvironment{soln}{\color{solnblue}}{}
+\bracketedpoints
+
+\renewenvironment{solution}{\leavevmode\par\begin{soln}\noindent Solution:}{\end{soln}}
+
+\newif\ifsolutions\solutionsfalse
+
+% title and date, along with \begin{document} and \maketitle, are done in the LaTeX service

@@ -8,6 +8,11 @@ import { NgxColorsModule } from 'ngx-colors';
 import FileSaver from 'file-saver';
 import {MatDialog} from "@angular/material/dialog";
 import {DialogComponent} from "./dialog/dialog.component";
+import JSZip from "jszip";
+import { HttpClientModule } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
+import {mark} from "@angular/compiler-cli/src/ngtsc/perf/src/clock";
+import { LatexService } from './latex.service';
 
 @Component({
   selector: 'app-root',
@@ -26,7 +31,7 @@ export class AppComponent {
   recentlyDeletedIndices: number[] = [];
   tagColors: any[] = [];
   defaultColor: string = "#ffffff";
-  constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog) {}
+  constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService) {}
 
   openPreferencesMenu() {
     // TODO make a component for the Preferences menu
@@ -362,6 +367,38 @@ export class AppComponent {
       if (result) {
         this.notes = result;
       }
+    });
+  }
+
+  exportAllNotes() {
+    // export all notes to a zip file
+    let zip = new JSZip();
+    for (let note of this.notes) {
+      let tags = "";
+      for (let i = 0; i < note.tags.length; i++) {
+        tags += note.tags[i] + ", " + this.tagColors[this.totalTags.indexOf(note.tags[i])] + "; ";
+      }
+      // if note already begins with "[//]: # (tags: " then replace it
+      while (note.content.startsWith("[//]: # (tags: ")) { // this is a while loop because there may be multiple lines from previous saves that need to be fixed
+        note.content = note.content.substring(note.content.indexOf("\n") + 1);
+      }
+      let content = "[//]: # (tags: " + tags + ")\n" + note.content;
+      zip.file(note.path + "/" + note.name + ".md", content);
+    }
+    zip.generateAsync({ type: "blob" }).then(content => {
+      FileSaver.saveAs(content, "notes.zip");
+    });
+  }
+
+  exportLaTeX() {
+    // this should convert all notes to LaTeX and export them to a zip file
+    let zip = new JSZip();
+    for (let note of this.notes) {
+      let content = this.converter.convertToLatex(note.name, note.content, note.lastModified);
+      zip.file(note.path + "/" + note.name + ".tex", content);
+    }
+    zip.generateAsync({ type: "blob" }).then(content => {
+      FileSaver.saveAs(content, "notes-latex.zip");
     });
   }
 }
