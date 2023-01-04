@@ -249,22 +249,23 @@ export class AppComponent {
   sortBy(sortParameter: string){
     // sort notes by given parameter
     // if nothing it's selected, keep the original ordering
-      if(sortParameter == "last modified" ){
-        this.notes.sort((note1, note2) => note2.lastModified - note1.lastModified);
-      }
-      if(sortParameter == "name"){
-        this.notes.sort((note1,note2) => {
-          let a = note1.name;
-          let b = note2.name;
-          if ( a < b ) return -1;
-          if ( a > b ) return 1;
-          return 0;
-        })
-      }
-      if(sortParameter == "path" ){
-        this.notes.sort((note1, note2) => note2.path.localeCompare(note1.path));
-      }
+    this.sortParameter = sortParameter;
+    if(sortParameter == "last modified" ){
+      this.notes.sort((note1, note2) => note2.lastModified - note1.lastModified);
     }
+    if(sortParameter == "name"){
+      this.notes.sort((note1,note2) => {
+        let a = note1.name;
+        let b = note2.name;
+        if ( a < b ) return -1;
+        if ( a > b ) return 1;
+        return 0;
+      })
+    }
+    if(sortParameter == "path" ){
+      this.notes.sort((note1, note2) => note2.path.localeCompare(note1.path));
+    }
+  }
 
 
 
