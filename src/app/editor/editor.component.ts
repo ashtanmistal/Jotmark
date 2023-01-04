@@ -240,7 +240,6 @@ export class EditorComponent {
     }
   }
   getSetting(key: string) {
-    console.log(this.settings.get(key));
     return this.settings.get(key);
   }
 

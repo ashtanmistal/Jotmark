@@ -11,6 +11,7 @@ import JSZip from "jszip";
 import { HttpClient } from "@angular/common/http";
 import { LatexService } from './latex.service';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
+import {SettingsService} from "./settings.service";
 
 class TodoItem {
   // each TodoItem has a name, a boolean for whether it is checked, and an array of TodoItems for its children (basically an arbitrary tree)
@@ -38,8 +39,7 @@ export class AppComponent {
   isDragging: boolean = false;
   pinnedNotes: Note[] = [];
   todos: TodoItem[] = [];
-  backgroundColor: string = "#ffffff";
-  constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService) {}
+  constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService, private settings: SettingsService) {}
 
   openPreferencesMenu() {
     // TODO make a component for the Preferences menu
@@ -497,5 +497,13 @@ export class AppComponent {
 
   toggleTodoChecked(todo: TodoItem) {
     todo.checked = !todo.checked;
+  }
+
+  getSetting(key: string) {
+    return this.settings.get(key);
+  }
+
+  setSetting(key: string, value: any) {
+    this.settings.set(key, value);
   }
 }

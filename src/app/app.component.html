@@ -1,6 +1,7 @@
 <!-- include the stylesheet -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" crossorigin="anonymous">
-<mat-toolbar style="z-index: 10000; position: fixed;">
+<div [ngStyle]="{'background': getSetting('themeBackground')}" style="height: 100vh; width: 100vw; overflow: hidden">
+<mat-toolbar style="z-index: 10000; position: fixed;" [ngStyle]="{'background-color': getSetting('themePrimary')}">
   <mat-toolbar-row>
     <ng-container style="justify-content: flex-start">
     <button mat-icon-button [matMenuTriggerFor]="menu">
@@ -60,7 +61,7 @@
       <button mat-menu-item (click)="openHelpMenu()">Help</button>
     </mat-menu>
     <span>Jotmark</span>
-    <mat-form-field class="search-bar" style="width: content-box; height: inherit; margin: 5px 10px;">
+    <mat-form-field class="search-bar" style="width: content-box; height: inherit; margin: 5px 10px; opacity: 0.5">
       <input matInput placeholder="Search" [(ngModel)]="searchTerm">
     </mat-form-field>
     <button mat-icon-button [matMenuTriggerFor]="tagMenu">
@@ -129,12 +130,12 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<div class="main-ui" [ngStyle]="{'background-color': backgroundColor}">
-  <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;">
+<div class="main-ui">
+  <div class="notes-list" style="overflow: auto; display: flex; flex-wrap: wrap; z-index: 1;" [ngStyle]="{'background': getSetting('themeBackground')}">
     <!-- if there are no notes, display a message -->
-    <div *ngIf="notes.length === 0" class="no-notes-message" [style.background-color]="defaultColor">
+    <div *ngIf="notes.length === 0" class="no-notes-message" [style.background-color]="getSetting('defaultNoteColor')">
       <mat-card style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-        <mat-card-title style="margin: 10px;">
+        <mat-card-title style="margin: 10px;" [ngStyle]="{'color': getSetting('themeText')}">
           No notes yet.
         </mat-card-title>
         <mat-card-content>
@@ -154,17 +155,17 @@
     </div>
     <ng-container *ngFor="let note of searchNotes(notes)">
       <!-- if there is a tag connected to the note, and if there is a color associated with that tag, set the background color of the note to that color -->
-      <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor" style="overflow: hidden">
+      <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : getSetting('defaultNoteColor')" style="overflow: hidden">
         <div style="max-height: 300px; overflow: auto">
           <mat-card-content (click)="handleNoteClick(note)"> <!-- moved from the note card to the content so it does not interfere with tags -->
             <!-- if the note content is empty, then render a placeholder "empty note" message -->
-            <ng-container *ngIf="note.content.length === 0">
-              <p style="color: #888888; font-style: italic;">Empty note. Click to edit.</p>
+            <ng-container *ngIf="note.content.length === 0" [ngStyle]="{'background': getSetting('defaultNoteColor')}">
+              <p style="font-style: italic;" [ngStyle]="{color: getSetting('themeSecondaryText')}">Empty note. Click to edit.</p>
             </ng-container>
             <div [innerHTML]="parseAndRender(note.content)" style="overflow: auto; max-height: 90%"></div>
           </mat-card-content>
         </div>
-        <mat-card-footer class="footer" [style.background-color]="(note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor) + '#808080'">
+        <mat-card-footer class="footer" [style.background-color]="(note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : getSetting('themeBackgroundAlt'))">
           <mat-card-actions>
             <button mat-icon-button (click)="pin(note)">
               <mat-icon>{{note.pinned ? 'push_pin' : 'push_pin_outlined'}}</mat-icon>
@@ -177,7 +178,7 @@
             </button>
             <div class="tags-list" cdkDropList (cdkDropListDropped)="dropTag(note, $event)">
               <ng-container *ngFor="let tag of note.tags">
-                <mat-chip (click)="filterByTag(tag)" cdkDrag color="primary">{{tag}}
+                <mat-chip (click)="filterByTag(tag)" cdkDrag [ngStyle]="{color: getSetting('themeAccent')}">{{tag}}
                   <mat-icon (click)="removeTagFromNoteByIndex(note, $event, note.tags.indexOf(tag))" matChipRemove>cancel</mat-icon>
                 </mat-chip>
               </ng-container>
@@ -198,8 +199,9 @@
     </ng-container>
   </div>
   <div class="add-button" style="position: fixed; bottom: 0; right: 0; z-index: 1; padding: 20px; scale: 1.2;">
-    <button mat-fab color="primary" class="add-button" (click)="newNote()">
+    <button mat-fab class="add-button" (click)="newNote()" [ngStyle]="{color: getSetting('themeAccent'), background: getSetting('themePrimary')}">
       <mat-icon>add</mat-icon>
     </button>
   </div>
+</div>
 </div>
