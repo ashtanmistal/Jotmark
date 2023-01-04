@@ -1,7 +1,8 @@
 <!-- include the stylesheet -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" crossorigin="anonymous">
 <mat-toolbar style="z-index: 10000">
-  <mat-toolbar-row>
+  <mat-toolbar-row style="width: 100vw">
+    <ng-container style="justify-content: flex-start">
     <button mat-icon-button [matMenuTriggerFor]="menu">
       <mat-icon>menu</mat-icon>
     </button>
@@ -29,7 +30,7 @@
         </mat-menu>
         <button mat-menu-item (click)="clearNotes()">Clear Notes</button>
       </mat-menu>
-<!--      <button mat-menu-item [matMenuTriggerFor]="editMenu">Edit</button>-->
+      <!--      <button mat-menu-item [matMenuTriggerFor]="editMenu">Edit</button>-->
       <mat-menu #editMenu="matMenu">
         <button mat-menu-item (click)="openRexfro(this.notes)">Rexfro Find and Replace</button>
       </mat-menu>
@@ -65,7 +66,6 @@
     <button mat-icon-button [matMenuTriggerFor]="tagMenu">
       <mat-icon>filter_list</mat-icon>
     </button>
-
     <mat-menu #tagMenu="matMenu">
       <ng-container *ngIf="totalTags.length == 0">
         <button mat-menu-item>No Tags</button>
@@ -78,6 +78,39 @@
         </mat-selection-list>
       </ng-template>
     </mat-menu>
+    </ng-container>
+    <ng-container style="justify-content: flex-end;">
+      <button mat-icon-button [matMenuTriggerFor]="todoMenu">
+        <mat-icon>checklist_rtl</mat-icon>
+      </button>
+      <!-- the mat-menu that is opened should have a button for adding an item to the todo list, and a checkbox for each item in the todo list -->
+      <mat-menu #todoMenu="matMenu">
+        <button mat-menu-item style="display: flex; justify-content: space-between">
+          <button mat-icon-button (click)="addTodo()" aria-label="Add Todo">
+            <mat-icon>add_task</mat-icon>
+          </button>
+          <button mat-icon-button (click)="clearCheckedTodos()" aria-label="Clear Checked Todos">
+            <mat-icon>remove_done</mat-icon>
+          </button>
+          <!-- export todos as markdown -->
+          <button mat-icon-button (click)="exportTodos()" aria-label="Export Todos">
+            <mat-icon>save</mat-icon>
+          </button>
+          <!-- import todos from markdown -->
+          <button mat-icon-button (click)="importTodos()" aria-label="Import Todos">
+            <mat-icon>publish</mat-icon>
+          </button>
+          .
+        </button>
+        <ng-template matMenuContent>
+          <mat-selection-list>
+            <mat-list-option *ngFor="let todo of todos" [selected]="todo.checked" (click)="toggleTodoChecked(todo)">
+              {{todo.name}}
+            </mat-list-option>
+          </mat-selection-list>
+        </ng-template>
+      </mat-menu>
+    </ng-container>
   </mat-toolbar-row>
 </mat-toolbar>
 
@@ -104,50 +137,50 @@
       <ng-container *ngFor="let note of pinnedNotes">
       </ng-container>
     </div>
-  <ng-container *ngFor="let note of searchNotes(notes)">
-    <!-- if there is a tag connected to the note, and if there is a color associated with that tag, set the background color of the note to that color -->
-    <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor" style="overflow: hidden">
-      <div style="max-height: 300px; overflow: auto">
-      <mat-card-content (click)="handleNoteClick(note)"> <!-- moved from the note card to the content so it does not interfere with tags -->
-        <!-- if the note content is empty, then render a placeholder "empty note" message -->
-        <ng-container *ngIf="note.content.length === 0">
-          <p style="color: #888888; font-style: italic;">Empty note. Click to edit.</p>
-        </ng-container>
-        <div [innerHTML]="parseAndRender(note.content)" style="overflow: auto; max-height: 90%"></div>
-      </mat-card-content>
-      </div>
-      <mat-card-footer class="footer" [style.background-color]="(note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor) + '#808080'">
-        <mat-card-actions>
-          <button mat-icon-button (click)="pin(note)">
-            <mat-icon>{{note.pinned ? 'push_pin' : 'push_pin_outlined'}}</mat-icon>
-          </button>
-          <button mat-icon-button (click)="deleteNoteByIndex($event, notes.indexOf(note))">
-            <mat-icon>delete</mat-icon>
-          </button>
-          <button mat-icon-button [matMenuTriggerFor]="tagMenu">
-            <mat-icon>label</mat-icon>
-          </button>
-          <div class="tags-list" cdkDropList (cdkDropListDropped)="dropTag(note, $event)">
-          <ng-container *ngFor="let tag of note.tags">
-            <mat-chip (click)="filterByTag(tag)" cdkDrag color="primary">{{tag}}
-              <mat-icon (click)="removeTagFromNoteByIndex(note, $event, note.tags.indexOf(tag))" matChipRemove>cancel</mat-icon>
-            </mat-chip>
-          </ng-container>
-          </div>
-
-          <mat-menu #tagMenu="matMenu">
-            <!-- make a button for adding a new tag to the note that calls addTagToNote() -->
-            <!-- on click it should open a material design dialog that asks for the tag name -->
-            <button mat-menu-item (click)="addNewTagToNote(note)">New Tag</button>
-            <!-- for each tag in the tags list, add a menu item that adds the tag to the note -->
-            <ng-container *ngFor="let tag of totalTags">
-              <button mat-menu-item (click)="addTagToNote(note, tag)">{{tag}}</button>
+    <ng-container *ngFor="let note of searchNotes(notes)">
+      <!-- if there is a tag connected to the note, and if there is a color associated with that tag, set the background color of the note to that color -->
+      <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor" style="overflow: hidden">
+        <div style="max-height: 300px; overflow: auto">
+          <mat-card-content (click)="handleNoteClick(note)"> <!-- moved from the note card to the content so it does not interfere with tags -->
+            <!-- if the note content is empty, then render a placeholder "empty note" message -->
+            <ng-container *ngIf="note.content.length === 0">
+              <p style="color: #888888; font-style: italic;">Empty note. Click to edit.</p>
             </ng-container>
-          </mat-menu>
-        </mat-card-actions>
-      </mat-card-footer>
-    </mat-card>
-  </ng-container>
+            <div [innerHTML]="parseAndRender(note.content)" style="overflow: auto; max-height: 90%"></div>
+          </mat-card-content>
+        </div>
+        <mat-card-footer class="footer" [style.background-color]="(note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor) + '#808080'">
+          <mat-card-actions>
+            <button mat-icon-button (click)="pin(note)">
+              <mat-icon>{{note.pinned ? 'push_pin' : 'push_pin_outlined'}}</mat-icon>
+            </button>
+            <button mat-icon-button (click)="deleteNoteByIndex($event, notes.indexOf(note))">
+              <mat-icon>delete</mat-icon>
+            </button>
+            <button mat-icon-button [matMenuTriggerFor]="tagMenu">
+              <mat-icon>label</mat-icon>
+            </button>
+            <div class="tags-list" cdkDropList (cdkDropListDropped)="dropTag(note, $event)">
+              <ng-container *ngFor="let tag of note.tags">
+                <mat-chip (click)="filterByTag(tag)" cdkDrag color="primary">{{tag}}
+                  <mat-icon (click)="removeTagFromNoteByIndex(note, $event, note.tags.indexOf(tag))" matChipRemove>cancel</mat-icon>
+                </mat-chip>
+              </ng-container>
+            </div>
+
+            <mat-menu #tagMenu="matMenu">
+              <!-- make a button for adding a new tag to the note that calls addTagToNote() -->
+              <!-- on click it should open a material design dialog that asks for the tag name -->
+              <button mat-menu-item (click)="addNewTagToNote(note)">New Tag</button>
+              <!-- for each tag in the tags list, add a menu item that adds the tag to the note -->
+              <ng-container *ngFor="let tag of totalTags">
+                <button mat-menu-item (click)="addTagToNote(note, tag)">{{tag}}</button>
+              </ng-container>
+            </mat-menu>
+          </mat-card-actions>
+        </mat-card-footer>
+      </mat-card>
+    </ng-container>
   </div>
   <div class="add-button" style="position: fixed; bottom: 0; right: 0; z-index: 1; padding: 20px; scale: 1.2;">
     <button mat-fab color="primary" class="add-button" (click)="newNote()">

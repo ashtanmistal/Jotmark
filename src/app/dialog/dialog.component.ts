@@ -19,4 +19,35 @@ export class DialogComponent {
   closeDialog(answer: any) {
     this.dialogRef.close(answer);
   }
+
+  // add a keyboard event listener to the dialog; if a user presses enter on a prompt or a confirm dialog, the dialog will close
+  // ngOnInit() {
+  //   document.addEventListener('keyup', (event) => {
+  //     if (event.key === 'Enter' && this.data.type === 'confirm') {
+  //       this.closeDialog(true);
+  //     } else if (event.key === 'Enter' && this.data.type === 'prompt') {
+  //       this.closeDialog(this.data.message);
+  //     } else if (event.key === 'Enter' && this.data.type === 'alert') {
+  //       this.closeDialog(null);
+  //     }
+  //   });
+  // }
+
+  confirmDialogKeyDown($event: KeyboardEvent) {
+    if ($event.key === 'Enter') {
+      this.closeDialog(true);
+    }
+  }
+
+  promptDialogKeyDown($event: KeyboardEvent) {
+    if ($event.key === 'Enter') {
+      this.closeDialog(this.data.message);
+    }
+  }
+
+  alertDialogKeyDown($event: KeyboardEvent) {
+    if ($event.key === 'Enter') {
+      this.closeDialog(null);
+    }
+  }
 }

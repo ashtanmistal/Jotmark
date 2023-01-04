@@ -58,7 +58,8 @@ import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
     MatTableModule,
     HttpClientModule,
     CdkDropList,
-    CdkDrag
+    CdkDrag,
+    MarkdownModule.forRoot(),
   ],
   providers: [],
   bootstrap: [AppComponent]

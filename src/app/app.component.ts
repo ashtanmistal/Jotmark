@@ -12,6 +12,11 @@ import { HttpClient } from "@angular/common/http";
 import { LatexService } from './latex.service';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 
+class TodoItem {
+  // each TodoItem has a name, a boolean for whether it is checked, and an array of TodoItems for its children (basically an arbitrary tree)
+  constructor(public name: string, public checked: boolean) {}
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -31,6 +36,7 @@ export class AppComponent {
   defaultColor: string = "#ffffff";
   isDragging: boolean = false;
   pinnedNotes: Note[] = [];
+  todos: TodoItem[] = [];
   constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService) {}
 
   openPreferencesMenu() {
@@ -140,11 +146,11 @@ export class AppComponent {
 
 
   saveAllNotes() {
-      for (let i = 0; i < this.notes.length; i++) {
-        if (!this.notes[i].saved) {
-          this.saveSingleNote(this.notes[i]);
-        }
+    for (let i = 0; i < this.notes.length; i++) {
+      if (!this.notes[i].saved) {
+        this.saveSingleNote(this.notes[i]);
       }
+    }
   }
 
   clearNotes() {
@@ -240,7 +246,7 @@ export class AppComponent {
         }
       }
     });
-}
+  }
 
 
 
@@ -404,5 +410,68 @@ export class AppComponent {
 
   pin(note: Note) {
     note.pinned = !note.pinned;
+  }
+
+  addTodo() {
+    this.dialog.open(DialogComponent, {
+      data: { type: "prompt", title: "Add Todo", message: "" }
+    }).afterClosed().subscribe(result => {
+      if (result) {
+        this.todos.push({name: result, checked: false});
+      }
+    });
+  }
+
+
+  clearCheckedTodos() {
+    this.dialog.open(DialogComponent, {
+      data: { type: "confirm", title: "Clear Checked Todos", message: "Are you sure?" }
+    }).afterClosed().subscribe(result => {
+      if (result) {
+        this.todos = this.todos.filter(todo => !todo.checked);
+      }
+    });
+  }
+
+
+  exportTodos() {
+    // export all todos to a md file, with [ ] for unchecked and [x] for checked
+    let content = "# Todos\n\n";
+    for (let todo of this.todos) {
+      content += (todo.checked ? "- [x] " : "- [ ] ") + todo.name + "\n";
+    }
+    let blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    FileSaver.saveAs(blob, "todos.md");
+  }
+
+  importTodos() {
+    // import todos from a md file
+    let input = document.createElement("input");
+    input.type = "file";
+    input.onchange = () => {
+      if (input.files) {
+        let file = input.files[0];
+        let reader = new FileReader();
+        reader.onload = () => {
+          let content = reader.result;
+          if (content && typeof content === "string") {
+            let lines = content.split("\n");
+            for (let line of lines) {
+              if (line.startsWith("- [x] ") || line.startsWith("[x] ")) {
+                this.todos.push({name: line.substring(6), checked: true});
+              } else if (line.startsWith("- [ ] ") || line.startsWith("[ ] ")) {
+                this.todos.push({name: line.substring(6), checked: false});
+              }
+            }
+          }
+        };
+        reader.readAsText(file);
+      }
+    };
+    input.click();
+  }
+
+  toggleTodoChecked(todo: TodoItem) {
+    todo.checked = !todo.checked;
   }
 }

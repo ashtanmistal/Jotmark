@@ -1,5 +1,5 @@
 <!-- this is a material design dialog component -->
-<ng-container *ngIf="data.type=== 'confirm'">
+<ng-container *ngIf="data.type=== 'confirm'" (keydown)="confirmDialogKeyDown($event)">
   <!-- dialogs aren't working for some reason so we'll make a card -->
   <mat-card class="dialog">
     <mat-card-title style="margin: 5px; padding: 0px;">
@@ -14,7 +14,7 @@
   </mat-card>
 </ng-container>
 
-<ng-container *ngIf="data.type=== 'prompt'">
+<ng-container *ngIf="data.type=== 'prompt'" (keydown)="promptDialogKeyDown($event)">
   <mat-card class="prompt">
     <mat-card-title style="margin: 5px; padding: 0px;">
       {{data.title}}</mat-card-title>
@@ -33,7 +33,7 @@
 </ng-container>
 
 <!-- alert -->
-<ng-container *ngIf="data.type=== 'alert'">
+<ng-container *ngIf="data.type=== 'alert'" (keydown)="alertDialogKeyDown($event)">
   <mat-card class="alert">
     <mat-card-title style="margin: 5px; padding: 0px;">
       {{data.title}}</mat-card-title>

@@ -13,13 +13,11 @@
     </div>
     </mat-card-subtitle>
   </div>
-  <!-- <textarea id="editor" name="editor" [(ngModel)]="note.content" style="width: 100%; height: auto;"></textarea> -->
   <div class="card-container" style="align-content: center; display: flex; flex-direction: row; justify-content: center; border-radius: 0" (click)="onEditorClick($event)" (keyup)="onEditorKeyUp($event)">
-
-    <mat-card class="editor-container" style="border-radius: 0">
-      <mat-card-content class="card-body" style="height: inherit;border-radius: 0">
-        <textarea id="editor" name="editor" [(ngModel)]="note.content" style="width: 99%; height: 74vh; overflow: auto; resize: none; z-index: auto;" (keydown)="onTextAreaKeyDown($event)"></textarea>
-      </mat-card-content>
+    <mat-card class="editor-container" style="border-radius: 0; height: inherit">
+      <mat-form-field appearance="outline" style="flex: 1; height: inherit">
+        <textarea matInput id="editor" name="editor" [(ngModel)]="note.content" style="height: 72vh; width: 100%; overflow: auto; resize: none; z-index: auto;" (keydown)="onTextAreaKeyDown($event)"></textarea>
+      </mat-form-field>
     </mat-card>
     <mat-card class="render-container" style="border-radius: 0">
       <mat-card-content class="card-body" style="border-radius: 0">
