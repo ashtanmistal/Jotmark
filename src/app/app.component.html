@@ -78,6 +78,21 @@
         </mat-selection-list>
       </ng-template>
     </mat-menu>
+    <button mat-icon-button [matMenuTriggerFor]="sort">
+      <mat-icon>sort</mat-icon>
+    </button>
+    <mat-menu #sort="matMenu">
+      <button mat-menu-item (click)="sortBy('name')">
+        <div [ngStyle] = "{'color' : sortParameter == 'name' ? 'black': 'grey'}" >
+          Name
+        </div>
+      </button>
+      <button mat-menu-item (click)="sortBy('last modified')">
+        <div [ngStyle] = "{'color' : sortParameter == 'last modified' ? 'black': 'grey'}" >
+          Last Modified
+        </div>
+      </button>
+    </mat-menu>
     </ng-container>
     <ng-container style="justify-content: flex-end;">
       <button mat-icon-button [matMenuTriggerFor]="todoMenu">

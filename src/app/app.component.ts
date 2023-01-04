@@ -30,6 +30,7 @@ export class AppComponent {
   totalTags: string[] = [];
   searchTerm: string = "";
   selectedTags: string[] = [];
+  sortParameter = "path";
   recentlyDeleted: Note[] = [];
   recentlyDeletedIndices: number[] = [];
   tagColors: any[] = [];
@@ -246,6 +247,23 @@ export class AppComponent {
         }
       }
     });
+  }
+
+  sortBy(sortParameter: string){
+    // sort notes by given parameter
+    // if parameter selected is already set, return to default order
+    if(sortParameter == this.sortParameter) {
+      this.notes.sort((note1, note2) => note1.path.localeCompare(note2.path));
+      this.sortParameter = "path";
+    } else {
+      this.sortParameter = sortParameter;
+      if(sortParameter == "last modified" ){
+        this.notes.sort((note1, note2) => note2.lastModified - note1.lastModified);
+      }
+      if(sortParameter == "name"){
+        this.notes.sort((note1,note2) => note1.name.localeCompare(note2.name));
+      }
+    }
   }
 
 
