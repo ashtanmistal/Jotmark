@@ -30,6 +30,7 @@ export class AppComponent {
   tagColors: any[] = [];
   defaultColor: string = "#ffffff";
   isDragging: boolean = false;
+  pinnedNotes: Note[] = [];
   constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService) {}
 
   openPreferencesMenu() {
@@ -71,7 +72,7 @@ export class AppComponent {
             text.substring(text.indexOf("\n") + 1);
           }
           // this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
-          this.notes.push({name: file.name.slice(0, -3), path: relativePath, tags: tags, content: text, external: true, saved: true, lastModified: file.lastModified, images: []});
+          this.notes.push({name: file.name.slice(0, -3), path: relativePath, tags: tags, content: text, external: true, saved: true, lastModified: file.lastModified, images: [], pinned: false});
           this.notes[this.notes.length - 1].saved = true;
         }
       }
@@ -112,7 +113,7 @@ export class AppComponent {
   newNote() {
     // create a new note
     let name = "Untitled"; // adding an invisible character for prompt rejection and avoidance of re-prompts
-    this.notes.push({name: name, path: "", tags: [], content: "", external: false, saved: false, lastModified: Date.now(), images: []});
+    this.notes.push({name: name, path: "", tags: [], content: "", external: false, saved: false, lastModified: Date.now(), images: [], pinned: false});
     this.selectNote(this.notes[this.notes.length - 1]);
   }
 
@@ -277,6 +278,11 @@ export class AppComponent {
   }
 
   searchNotes(notes: Note[]) {
+    // get all the pinned notes - these should always be at the top
+    let pinnedNotes = notes.filter(note => note.pinned);
+    // get all the unpinned notes
+    let unpinnedNotes = notes.filter(note => !note.pinned);
+    notes = pinnedNotes.concat(unpinnedNotes);
     // filter the notes by any tags selected
     // make a copy of the notes
     let filteredNotes = notes.slice();
@@ -394,5 +400,9 @@ export class AppComponent {
   dropTag(note: Note, $event: CdkDragDrop<string[], any>) {
     moveItemInArray(note.tags, $event.previousIndex, $event.currentIndex);
     note.saved = false;
+  }
+
+  pin(note: Note) {
+    note.pinned = !note.pinned;
   }
 }

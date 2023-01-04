@@ -35,7 +35,7 @@ import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
     SettingsComponent,
     NoteComponent,
     DialogComponent,
-    RexfroComponent
+    RexfroComponent,
   ],
   imports: [
     BrowserModule,

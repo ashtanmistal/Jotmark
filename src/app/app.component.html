@@ -99,6 +99,11 @@
         </mat-card-actions>
       </mat-card>
     </div>
+    <!-- display any pinned notes first -->
+    <div *ngIf="pinnedNotes.length > 0">
+      <ng-container *ngFor="let note of pinnedNotes">
+      </ng-container>
+    </div>
   <ng-container *ngFor="let note of searchNotes(notes)">
     <!-- if there is a tag connected to the note, and if there is a color associated with that tag, set the background color of the note to that color -->
     <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor" style="overflow: hidden">
@@ -113,6 +118,9 @@
       </div>
       <mat-card-footer class="footer" [style.background-color]="(note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor) + '#808080'">
         <mat-card-actions>
+          <button mat-icon-button (click)="pin(note)">
+            <mat-icon>{{note.pinned ? 'push_pin' : 'push_pin_outlined'}}</mat-icon>
+          </button>
           <button mat-icon-button (click)="deleteNoteByIndex($event, notes.indexOf(note))">
             <mat-icon>delete</mat-icon>
           </button>

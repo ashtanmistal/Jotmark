@@ -26,7 +26,7 @@ export class EditorComponent {
 
   constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private converter: LatexService) {
     this.route.params.subscribe(params => {
-      this.note = {name: params['name'], path: params['path'], tags: params['tags'], content: params['content'], external: params['external'], saved: params['saved'], lastModified: params['lastModified'], images: params['images']};
+      this.note = {name: params['name'], path: params['path'], tags: params['tags'], content: params['content'], external: params['external'], saved: params['saved'], lastModified: params['lastModified'], images: params['images'], pinned: params['pinned']};
       this.showNote = true;
     });
   }
