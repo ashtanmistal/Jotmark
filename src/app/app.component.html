@@ -81,9 +81,16 @@
       <mat-icon>sort</mat-icon>
     </button>
     <mat-menu #sort="matMenu">
-      <button mat-menu-item (click)="sortBy('name')">Name</button>
-      <button mat-menu-item (click)="sortBy('last modified')">Last Modified</button>
-      <button mat-menu-item (click)="sortBy('path')"></button>
+      <button mat-menu-item (click)="sortBy('name')">
+        <div [ngStyle] = "{'color' : sortParameter == 'name' ? 'black': 'grey'}" >
+          Name
+        </div>
+      </button>
+      <button mat-menu-item (click)="sortBy('last modified')">
+        <div [ngStyle] = "{'color' : sortParameter == 'last modified' ? 'black': 'grey'}" >
+          Last Modified
+        </div>
+      </button>
     </mat-menu>
   </mat-toolbar-row>
 </mat-toolbar>
