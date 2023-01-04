@@ -4,14 +4,13 @@ import {marked} from 'marked';
 import katex from 'katex';
 import {DomSanitizer} from "@angular/platform-browser";
 import {Router} from '@angular/router';
-import { NgxColorsModule } from 'ngx-colors';
 import FileSaver from 'file-saver';
 import {MatDialog} from "@angular/material/dialog";
 import {DialogComponent} from "./dialog/dialog.component";
 import JSZip from "jszip";
 import { HttpClient } from "@angular/common/http";
 import { LatexService } from './latex.service';
-import {CdkDragDrop, CdkDragEnd, CdkDragStart, moveItemInArray} from "@angular/cdk/drag-drop";
+import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 
 @Component({
   selector: 'app-root',
@@ -31,6 +30,7 @@ export class AppComponent {
   tagColors: any[] = [];
   defaultColor: string = "#ffffff";
   isDragging: boolean = false;
+  pinnedNotes: Note[] = [];
   constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService) {}
 
   openPreferencesMenu() {
@@ -72,7 +72,7 @@ export class AppComponent {
             text.substring(text.indexOf("\n") + 1);
           }
           // this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
-          this.notes.push({name: file.name.slice(0, -3), path: relativePath, tags: tags, content: text, external: true, saved: true, lastModified: file.lastModified, images: []});
+          this.notes.push({name: file.name.slice(0, -3), path: relativePath, tags: tags, content: text, external: true, saved: true, lastModified: file.lastModified, images: [], pinned: false});
           this.notes[this.notes.length - 1].saved = true;
         }
       }
@@ -113,7 +113,7 @@ export class AppComponent {
   newNote() {
     // create a new note
     let name = "Untitled"; // adding an invisible character for prompt rejection and avoidance of re-prompts
-    this.notes.push({name: name, path: "", tags: [], content: "", external: false, saved: false, lastModified: Date.now(), images: []});
+    this.notes.push({name: name, path: "", tags: [], content: "", external: false, saved: false, lastModified: Date.now(), images: [], pinned: false});
     this.selectNote(this.notes[this.notes.length - 1]);
   }
 
@@ -122,9 +122,6 @@ export class AppComponent {
     // location to save to is this.path
     // we have already asserted it is not an empty string
     // if the file already exists, overwrite it
-    if (this.path === "") {
-      return;
-    }
     // add the tags as a comment on line 1 in the form of [//]: # (tags: tag1, color1; tag2, color2; ...)
     let tags = "";
     for (let i = 0; i < Note.tags.length; i++) {
@@ -189,7 +186,7 @@ export class AppComponent {
     this.selectedNote = note;
     // this.router.navigate(['/editor', this.selectedNote]).then(() => {});
     let output = this.dialog.open(DialogComponent, {
-      data: { type: "editor", note: note }
+      data: { type: "editor", note: note, totalTags: this.totalTags, tagColors: this.tagColors, defaultColor: this.defaultColor }
     });
     output.afterClosed().subscribe(result => {
       if (result) {
@@ -281,6 +278,11 @@ export class AppComponent {
   }
 
   searchNotes(notes: Note[]) {
+    // get all the pinned notes - these should always be at the top
+    let pinnedNotes = notes.filter(note => note.pinned);
+    // get all the unpinned notes
+    let unpinnedNotes = notes.filter(note => !note.pinned);
+    notes = pinnedNotes.concat(unpinnedNotes);
     // filter the notes by any tags selected
     // make a copy of the notes
     let filteredNotes = notes.slice();
@@ -374,7 +376,6 @@ export class AppComponent {
         note.content = note.content.substring(note.content.indexOf("\n") + 1);
       }
       let content = "[//]: # (tags: " + tags + ")\n" + note.content;
-      console.log(note.path);
       zip.file(note.path, content);
     }
     zip.generateAsync({ type: "blob" }).then(content => {
@@ -396,15 +397,12 @@ export class AppComponent {
     });
   }
 
-  drop($event: CdkDragDrop<Note[], any>) {
-    moveItemInArray(this.notes, $event.previousIndex, $event.currentIndex);
+  dropTag(note: Note, $event: CdkDragDrop<string[], any>) {
+    moveItemInArray(note.tags, $event.previousIndex, $event.currentIndex);
+    note.saved = false;
   }
 
-  onDragEnd($event: CdkDragEnd) {
-    this.isDragging = false;
-  }
-
-  onDragStart($event: CdkDragStart) {
-    this.isDragging = true;
+  pin(note: Note) {
+    note.pinned = !note.pinned;
   }
 }

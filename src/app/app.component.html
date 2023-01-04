@@ -65,6 +65,7 @@
     <button mat-icon-button [matMenuTriggerFor]="tagMenu">
       <mat-icon>filter_list</mat-icon>
     </button>
+
     <mat-menu #tagMenu="matMenu">
       <ng-container *ngIf="totalTags.length == 0">
         <button mat-menu-item>No Tags</button>
@@ -81,7 +82,7 @@
 </mat-toolbar>
 
 <div class="main-ui">
-  <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;" cdkDropList [cdkDropListData]="notes" (cdkDropListDropped)="drop($event)">
+  <div class="notes-list" style="display: flex; flex-wrap: wrap; z-index: 1;">
     <!-- if there are no notes, display a message -->
     <div *ngIf="notes.length === 0" class="no-notes-message" [style.background-color]="defaultColor">
       <mat-card style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
@@ -98,34 +99,41 @@
         </mat-card-actions>
       </mat-card>
     </div>
+    <!-- display any pinned notes first -->
+    <div *ngIf="pinnedNotes.length > 0">
+      <ng-container *ngFor="let note of pinnedNotes">
+      </ng-container>
+    </div>
   <ng-container *ngFor="let note of searchNotes(notes)">
     <!-- if there is a tag connected to the note, and if there is a color associated with that tag, set the background color of the note to that color -->
-    <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor" cdkDrag (cdkDragStarted)="onDragStart($event)" (cdkDragEnded)="onDragEnd($event)">
+    <mat-card class="note-card" [style.background-color]="note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor" style="overflow: hidden">
       <div style="max-height: 300px; overflow: auto">
       <mat-card-content (click)="handleNoteClick(note)"> <!-- moved from the note card to the content so it does not interfere with tags -->
         <!-- if the note content is empty, then render a placeholder "empty note" message -->
         <ng-container *ngIf="note.content.length === 0">
           <p style="color: #888888; font-style: italic;">Empty note. Click to edit.</p>
         </ng-container>
-        <div [innerHTML]="parseAndRender(note.content)" style="overflow: auto"></div>
-        <div class="fill-remaining-space"></div>
+        <div [innerHTML]="parseAndRender(note.content)" style="overflow: auto; max-height: 90%"></div>
       </mat-card-content>
       </div>
-      <div class="fill-remaining-space"></div>
-      <mat-card-footer>
-        <div class="fill-remaining-space"></div>
+      <mat-card-footer class="footer" [style.background-color]="(note.tags.length > 0 ? tagColors[totalTags.indexOf(note.tags[0])] : defaultColor) + '#808080'">
         <mat-card-actions>
+          <button mat-icon-button (click)="pin(note)">
+            <mat-icon>{{note.pinned ? 'push_pin' : 'push_pin_outlined'}}</mat-icon>
+          </button>
           <button mat-icon-button (click)="deleteNoteByIndex($event, notes.indexOf(note))">
             <mat-icon>delete</mat-icon>
           </button>
           <button mat-icon-button [matMenuTriggerFor]="tagMenu">
             <mat-icon>label</mat-icon>
           </button>
+          <div class="tags-list" cdkDropList (cdkDropListDropped)="dropTag(note, $event)">
           <ng-container *ngFor="let tag of note.tags">
-            <mat-chip (click)="filterByTag(tag)" color="primary">{{tag}}
+            <mat-chip (click)="filterByTag(tag)" cdkDrag color="primary">{{tag}}
               <mat-icon (click)="removeTagFromNoteByIndex(note, $event, note.tags.indexOf(tag))" matChipRemove>cancel</mat-icon>
             </mat-chip>
           </ng-container>
+          </div>
 
           <mat-menu #tagMenu="matMenu">
             <!-- make a button for adding a new tag to the note that calls addTagToNote() -->

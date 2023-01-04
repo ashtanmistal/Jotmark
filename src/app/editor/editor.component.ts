@@ -7,6 +7,9 @@ import {DomSanitizer} from "@angular/platform-browser";
 import { Router } from '@angular/router';
 import {MatDialog} from "@angular/material/dialog";
 import {DialogComponent} from "../dialog/dialog.component";
+import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
+import FileSaver from "file-saver";
+import {LatexService} from "../latex.service";
 
 @Component({
   selector: 'app-editor',
@@ -14,20 +17,16 @@ import {DialogComponent} from "../dialog/dialog.component";
   styleUrls: ['./editor.component.css']
 })
 export class EditorComponent {
-  // This class is an editor view for a single note.
-  // It is a child of the AppComponent.
-  // It has a note, which is a Note object.
-  // the notes' content is a Markdown document.
-  // we want to place a Markdown editor in this component, complete with a preview pane on the right hand side.
-  // the editor should be able to save the note to a file.
-  // the editor should have a panel on the left hand side that is the same as the GitHub markdown editor.
   @Input() note: Note | null = null;
   // editor: SimpleMDE | null = null;
   showNote = false;
+  totalTags: string[] = [];
+  tagColors: any[] = [];
+  defaultColor: string = "#ffffff";
 
-  constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog) {
+  constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private converter: LatexService) {
     this.route.params.subscribe(params => {
-      this.note = {name: params['name'], path: params['path'], tags: params['tags'], content: params['content'], external: params['external'], saved: params['saved'], lastModified: params['lastModified'], images: params['images']};
+      this.note = {name: params['name'], path: params['path'], tags: params['tags'], content: params['content'], external: params['external'], saved: params['saved'], lastModified: params['lastModified'], images: params['images'], pinned: params['pinned']};
       this.showNote = true;
     });
   }
@@ -70,8 +69,6 @@ export class EditorComponent {
     }
     this.note = null;
     this.router.navigate(['/']).then(() => {});
-
-    // TODO: making this null doesn't allow the user to re-open the same note immediately after closing it without double clicking; fix this
   }
 
   onEditorClick(event: MouseEvent) {
@@ -104,6 +101,48 @@ export class EditorComponent {
     // image file and insert the image into the note using Markdown image syntax.
     if ($event.key === "v" && $event.ctrlKey || $event.key === "v" && $event.metaKey) {
       // TODO implement this
+    } else if ($event.key === "b" && $event.ctrlKey || $event.key === "b" && $event.metaKey) {
+      // get the selection range
+      let selection = window.getSelection();
+      if (selection != null) {
+        let range = selection.getRangeAt(0);
+        // insert the bold syntax
+        range.insertNode(document.createTextNode("**"));
+        range.collapse(false);
+        range.insertNode(document.createTextNode("**"));
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      } else {
+        // just insert the bold syntax at the cursor position
+        let textArea = document.getElementById("editor-textarea") as HTMLTextAreaElement;
+        let startPos = textArea.selectionStart;
+        let endPos = textArea.selectionEnd;
+        textArea.value = textArea.value.substring(0, startPos) + "**" + textArea.value.substring(startPos, endPos) + "**" + textArea.value.substring(endPos, textArea.value.length);
+        textArea.selectionStart = startPos + 2;
+        textArea.selectionEnd = endPos + 2;
+      }
+    } else if ($event.key === "i" && $event.ctrlKey || $event.key === "i" && $event.metaKey) {
+      // get the selection range
+      let selection = window.getSelection();
+      if (selection != null) {
+        let range = selection.getRangeAt(0);
+        // insert the italic syntax
+        range.insertNode(document.createTextNode("*"));
+        range.collapse(false);
+        range.insertNode(document.createTextNode("*"));
+        range.collapse(false);
+        selection.removeAllRanges();
+        selection.addRange(range);
+      } else {
+        // just insert the italic syntax at the cursor position
+        let textArea = document.getElementById("editor-textarea") as HTMLTextAreaElement;
+        let startPos = textArea.selectionStart;
+        let endPos = textArea.selectionEnd;
+        textArea.value = textArea.value.substring(0, startPos) + "*" + textArea.value.substring(startPos, endPos) + "*" + textArea.value.substring(endPos, textArea.value.length);
+        textArea.selectionStart = startPos + 1;
+        textArea.selectionEnd = endPos + 1;
+      }
     }
     if (this.note) {
       this.note.saved = false;
@@ -148,8 +187,14 @@ export class EditorComponent {
     userInput.afterClosed().subscribe(name => {
     if (name != null) {
       // check if the name is valid as a file name
-      if (name.match(/^[a-zA-Z0-9_\-\.]+$/)) {
-        note.name = name;
+      if (name.match(/^[a-zA-Z0-9_ \-\.]+$/)) {
+        if (name.length > 100) {
+          this.dialog.open(DialogComponent, {
+            data: { title: "Error", message: "The name of the note cannot be longer than 100 characters.", type: "alert" }
+          });
+        } else {
+          note.name = name;
+        }
       } else {
         // invalid file name
         this.dialog.open(DialogComponent, {
@@ -158,5 +203,35 @@ export class EditorComponent {
       }
     }
   });
+  }
+
+  removeTagFromNoteByIndex(note: Note, $event: MouseEvent, number: number) {
+    note.tags.splice(number, 1);
+    note.saved = false;
+    $event.stopPropagation();
+  }
+
+  dropTag($event: CdkDragDrop<string[], any>) {
+    if (this.note) {
+      moveItemInArray(this.note.tags, $event.previousIndex, $event.currentIndex);
+      this.note.saved = false;
+    }
+  }
+
+  saveNote() {
+    let Note = this.note;
+    if (Note) {
+      let blob = new Blob([Note.content], {type: "text/plain;charset=utf-8"});
+      // if the note is external, save it in the same directory as the original
+      FileSaver.saveAs(blob, Note.name + ".md");
+    }
+  }
+
+  exportNoteAsLaTeX() {
+    if (this.note) {
+      let content = this.converter.convertToLatex(this.note.name, this.note.content, this.note.lastModified);
+      let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+      FileSaver.saveAs(blob, this.note.name + ".tex");
+    }
   }
 }
