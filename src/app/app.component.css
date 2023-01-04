@@ -63,3 +63,9 @@
   transition-delay: 0.1s;
   width: 100%;
 }
+
+.main-ui {
+  /* right now the header is blocking off the top of the note cards */
+  /* add some padding to the top of the main ui */
+  padding-top: 65px;
+}

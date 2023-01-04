@@ -10,6 +10,7 @@ import {DialogComponent} from "../dialog/dialog.component";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import FileSaver from "file-saver";
 import {LatexService} from "../latex.service";
+import {SettingsService} from "../settings.service";
 
 @Component({
   selector: 'app-editor',
@@ -24,7 +25,7 @@ export class EditorComponent {
   tagColors: any[] = [];
   defaultColor: string = "#ffffff";
 
-  constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private converter: LatexService) {
+  constructor(private route: ActivatedRoute, private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private converter: LatexService, private settings: SettingsService) {
     this.route.params.subscribe(params => {
       this.note = {name: params['name'], path: params['path'], tags: params['tags'], content: params['content'], external: params['external'], saved: params['saved'], lastModified: params['lastModified'], images: params['images'], pinned: params['pinned']};
       this.showNote = true;
@@ -38,10 +39,14 @@ export class EditorComponent {
       return katex.renderToString(p1, {displayMode: true});
     });
     // for inline equations, include it in a div or something because it doesn't work otherwise
-    html = html.replace(/\$([^]*?)\$/g, (match, p1) => {
-      let newHtml = katex.renderToString(p1, {displayMode: false});
-      return `${newHtml}`;
-    });
+    try {
+      html = html.replace(/\$([^]*?)\$/g, (match, p1) => {
+        let newHtml = katex.renderToString(p1, {displayMode: false});
+        return `${newHtml}`;
+      });
+    } catch (e) {
+      console.log(e);
+    }
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
@@ -233,5 +238,13 @@ export class EditorComponent {
       let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
       FileSaver.saveAs(blob, this.note.name + ".tex");
     }
+  }
+  getSetting(key: string) {
+    console.log(this.settings.get(key));
+    return this.settings.get(key);
+  }
+
+  setSetting(key: string, value: any) {
+    this.settings.set(key, value);
   }
 }

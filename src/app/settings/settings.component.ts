@@ -6,5 +6,7 @@ import { Component } from '@angular/core';
   styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent {
+  // NOTE that this is the UI for the settings, not the actual settings
+  // The actual settings are stored in the settings service
 
 }

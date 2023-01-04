@@ -15,18 +15,18 @@
   </div>
   <div class="card-container" style="align-content: center; display: flex; flex-direction: row; justify-content: center; border-radius: 0" (click)="onEditorClick($event)" (keyup)="onEditorKeyUp($event)">
     <mat-card class="editor-container" style="border-radius: 0; height: inherit">
-      <mat-form-field appearance="outline" style="flex: 1; height: inherit">
-        <textarea matInput id="editor" name="editor" [(ngModel)]="note.content" style="height: 72vh; width: 100%; overflow: auto; resize: none; z-index: auto;" (keydown)="onTextAreaKeyDown($event)"></textarea>
+      <mat-form-field appearance="outline" style="flex: 1; height: inherit" [ngStyle]="{'background-color': getSetting('themeBackground')}">
+        <textarea matInput id="editor" name="editor" [(ngModel)]="note.content" style="height: 72vh; width: 100%; overflow: auto; resize: none; z-index: auto;" (keydown)="onTextAreaKeyDown($event)" [ngStyle]="{'font-size': getSetting('editorFontSize') + 'px', 'font-family': getSetting('editorFontFamily')}"></textarea>
       </mat-form-field>
     </mat-card>
-    <mat-card class="render-container" style="border-radius: 0">
-      <mat-card-content class="card-body" style="border-radius: 0">
+    <mat-card class="render-container" style="border-radius: 0" [ngStyle]="{'background-color': getSetting('themeBackgroundAlt')}">
+      <mat-card-content class="card-body" style="border-radius: 0" [ngStyle]="{'font-size': getSetting('previewFontSize') + 'px', 'font-family': getSetting('previewFontFamily')}">
         <div [innerHTML]="parseAndRender(note.content)"></div>
       </mat-card-content>
     </mat-card>
     <!-- put three dots overlayed on the top right of the card -->
     <div class="card-overlay" style="position: absolute; top: 0; right: 0; z-index: 2; display: flex; flex-direction: row; justify-content: flex-end; align-items: flex-start; padding: 5px">
-      <mat-icon [mat-menu-trigger-for]="editorMenu" style="color: #000000; cursor: pointer">more_vert</mat-icon>
+      <mat-icon [mat-menu-trigger-for]="editorMenu" style="cursor: pointer" [ngStyle]="{'color': getSetting('themeAccent')}">more_vert</mat-icon>
       <mat-menu #editorMenu="matMenu">
         <button mat-menu-item (click)="saveNote()">Save Note</button>
         <button mat-menu-item (click)="exportNoteAsLaTeX()">Export as LaTeX</button>

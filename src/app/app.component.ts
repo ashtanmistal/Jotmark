@@ -38,6 +38,7 @@ export class AppComponent {
   isDragging: boolean = false;
   pinnedNotes: Note[] = [];
   todos: TodoItem[] = [];
+  backgroundColor: string = "#ffffff";
   constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService) {}
 
   openPreferencesMenu() {
@@ -211,10 +212,15 @@ export class AppComponent {
     html = html.replace(/\$\$([^]*?)\$\$/g, (match, p1) => {
       return katex.renderToString(p1, {displayMode: true});
     });
-    html = html.replace(/\$([^]*?)\$/g, (match, p1) => {
-      let newHtml = katex.renderToString(p1, {displayMode: false});
-      return `${newHtml}`;
-    });
+    try {
+      html = html.replace(/\$([^]*?)\$/g, (match, p1) => {
+        let newHtml = katex.renderToString(p1, {displayMode: false});
+        return `${newHtml}`;
+      });
+    } catch (e) {
+      console.log(e);
+      // don't replace anything
+    }
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
