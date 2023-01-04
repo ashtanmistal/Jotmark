@@ -1,4 +1,7 @@
 {
-  "dark-mode": false,
-  "editor-font-size": 14
+  "editor": {
+    "fontFamily": "Fira Code",
+    "fontSize": 14,
+    "showPreview": true
+  }
 }
