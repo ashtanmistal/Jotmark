@@ -1,19 +1,15 @@
 import {Component} from '@angular/core';
-import {Note} from './note/note';
-import {Router} from '@angular/router';
-import FileSaver from 'file-saver';
+import {Note} from './service/note';
 import {MatDialog} from "@angular/material/dialog";
 import {DialogComponent} from "./dialog/dialog.component";
-import JSZip from "jszip";
-import { HttpClient } from "@angular/common/http";
-import { LatexService } from './latex.service';
+import { LatexService } from './service/latex.service';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
-import {SettingsService} from "./settings.service";
-import {NoteService} from "./note/note.service";
-// Import the functions you need from the SDKs you need
+import {SettingsService} from "./service/settings.service";
+import {NoteService} from "./service/note.service";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { environment } from "../environments/environment";
+import {SaveloadService} from "./service/saveload.service";
 // Initialize Firebase
 const firebaseConfig = environment.firebaseConfig;
 const app = initializeApp(firebaseConfig);
@@ -45,7 +41,7 @@ export class AppComponent {
   isDragging: boolean = false;
   pinnedNotes: Note[] = [];
   todos: TodoItem[] = [];
-  constructor(private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService, private settings: SettingsService, private noteservice: NoteService) {}
+  constructor(private dialog: MatDialog, private converter: LatexService, private settings: SettingsService, private noteservice: NoteService, private saveLoadService: SaveloadService) {}
 
   openPreferencesMenu() {
     // TODO make a component for the Preferences menu
@@ -125,31 +121,14 @@ export class AppComponent {
   }
 
   newNote() {
-    // create a new note
+    // create a new service
     let name = "Untitled"; // adding an invisible character for prompt rejection and avoidance of re-prompts
     this.notes.push({name: name, path: "", tags: [], content: "", external: false, saved: false, lastModified: Date.now(), images: [], pinned: false});
     this.selectNote(this.notes[this.notes.length - 1]);
   }
 
   saveSingleNote(Note: Note) {
-    // save a single note
-    // location to save to is this.path
-    // we have already asserted it is not an empty string
-    // if the file already exists, overwrite it
-    // add the tags as a comment on line 1 in the form of [//]: # (tags: tag1, color1; tag2, color2; ...)
-    let tags = "";
-    for (let i = 0; i < Note.tags.length; i++) {
-      tags += Note.tags[i] + ", " + this.tagColors[this.totalTags.indexOf(Note.tags[i])] + "; ";
-    }
-    // if note already begins with "[//]: # (tags: " then replace it
-    while (Note.content.startsWith("[//]: # (tags: ")) { // this is a while loop because there may be multiple lines from previous saves that need to be fixed
-      Note.content = Note.content.substring(Note.content.indexOf("\n") + 1);
-    }
-    let content = "[//]: # (tags: " + tags + ")\n" + Note.content;
-
-    let blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-    // if the note is external, save it in the same directory as the original
-    FileSaver.saveAs(blob, Note.name + ".md");
+    this.saveLoadService.saveSingleNote(Note, this.tagColors, this.totalTags);
   }
 
 
@@ -186,14 +165,13 @@ export class AppComponent {
 
   selectNote(note: Note) {
     this.selectedNote = note;
-    // this.router.navigate(['/editor', this.selectedNote]).then(() => {});
     let output = this.dialog.open(DialogComponent, {
       data: { type: "editor", note: note, totalTags: this.totalTags, tagColors: this.tagColors, defaultColor: this.defaultColor }
     });
     output.afterClosed().subscribe(result => {
       if (result) {
         this.selectedNote = null;
-        // this.selectedNote = result; // update the selected note just in case
+        // this.selectedNote = result; // update the selected service just in case
       }
     });
   }
@@ -210,10 +188,10 @@ export class AppComponent {
   }
 
   removeTagFromNoteByIndex(note: Note, $event: MouseEvent, number: number) {
-    // remove the tag from the note at the given index
+    // remove the tag from the service at the given index
     note.tags.splice(number, 1);
     note.saved = false;
-    $event.stopPropagation(); // this prevents the note from being selected
+    $event.stopPropagation(); // this prevents the service from being selected
   }
 
   addNewTagToNote(note: Note) {
@@ -254,7 +232,7 @@ export class AppComponent {
 
 
   addTagToNote(note: Note, tag: string) {
-    // add a tag to the note at the given index
+    // add a tag to the service at the given index
     if (!note.tags.includes(tag)) {
       note.tags.push(tag);
       note.saved = false;
@@ -273,7 +251,7 @@ export class AppComponent {
 
   deleteNoteByIndex($event: MouseEvent, number: number) {
     const userPrompt = this.dialog.open(DialogComponent, {
-      data: { title: "Delete Note", message: "Are you sure you want to delete this note?", type: "confirm" }
+      data: { title: "Delete Note", message: "Are you sure you want to delete this service?", type: "confirm" }
     });
     userPrompt.afterClosed().subscribe(result => {
       if (result) {
@@ -354,49 +332,12 @@ export class AppComponent {
     this.recentlyDeletedIndices = [];
   }
 
-  openRexfro(notes: Note[]) {
-    let dialog = this.dialog.open(DialogComponent, {
-      data: { type: "Rexfro", notes }
-    });
-    dialog.afterClosed().subscribe(result => {
-      if (result) {
-        this.notes = result;
-      }
-    });
-  }
-
   exportAllNotes() {
-    // export all notes to a zip file
-    let zip = new JSZip();
-    for (let note of this.notes) {
-      let tags = "";
-      for (let i = 0; i < note.tags.length; i++) {
-        tags += note.tags[i] + ", " + this.tagColors[this.totalTags.indexOf(note.tags[i])] + "; ";
-      }
-      // if note already begins with "[//]: # (tags: " then replace it
-      while (note.content.startsWith("[//]: # (tags: ")) { // this is a while loop because there may be multiple lines from previous saves that need to be fixed
-        note.content = note.content.substring(note.content.indexOf("\n") + 1);
-      }
-      let content = "[//]: # (tags: " + tags + ")\n" + note.content;
-      zip.file(note.path, content);
-    }
-    zip.generateAsync({ type: "blob" }).then(content => {
-      FileSaver.saveAs(content, "notes.zip");
-    });
+    this.saveLoadService.exportZip(this.notes, this.tagColors, this.totalTags);
   }
 
   exportLaTeX() {
-    // this should convert all notes to LaTeX and export them to a zip file
-    let zip = new JSZip();
-    for (let note of this.notes) {
-      let content = this.converter.convertToLatex(note.name, note.content, note.lastModified);
-      // remove the .md from the path
-      let path = note.path.substring(0, note.path.length - 3) + ".tex";
-      zip.file(path, content);
-    }
-    zip.generateAsync({ type: "blob" }).then(content => {
-      FileSaver.saveAs(content, "notes-latex.zip");
-    });
+    this.saveLoadService.exportLaTeX(this.notes);
   }
 
   dropTag(note: Note, $event: CdkDragDrop<string[], any>) {
@@ -406,69 +347,6 @@ export class AppComponent {
 
   pin(note: Note) {
     note.pinned = !note.pinned;
-  }
-
-  addTodo() {
-    this.dialog.open(DialogComponent, {
-      data: { type: "prompt", title: "Add Todo", message: "" }
-    }).afterClosed().subscribe(result => {
-      if (result) {
-        this.todos.push({name: result, checked: false});
-      }
-    });
-  }
-
-
-  clearCheckedTodos() {
-    this.dialog.open(DialogComponent, {
-      data: { type: "confirm", title: "Clear Checked Todos", message: "Are you sure?" }
-    }).afterClosed().subscribe(result => {
-      if (result) {
-        this.todos = this.todos.filter(todo => !todo.checked);
-      }
-    });
-  }
-
-
-  exportTodos() {
-    // export all todos to a md file, with [ ] for unchecked and [x] for checked
-    let content = "# Todos\n\n";
-    for (let todo of this.todos) {
-      content += (todo.checked ? "- [x] " : "- [ ] ") + todo.name + "\n";
-    }
-    let blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    FileSaver.saveAs(blob, "todos.md");
-  }
-
-  importTodos() {
-    // import todos from a md file
-    let input = document.createElement("input");
-    input.type = "file";
-    input.onchange = () => {
-      if (input.files) {
-        let file = input.files[0];
-        let reader = new FileReader();
-        reader.onload = () => {
-          let content = reader.result;
-          if (content && typeof content === "string") {
-            let lines = content.split("\n");
-            for (let line of lines) {
-              if (line.startsWith("- [x] ") || line.startsWith("[x] ")) {
-                this.todos.push({name: line.substring(6), checked: true});
-              } else if (line.startsWith("- [ ] ") || line.startsWith("[ ] ")) {
-                this.todos.push({name: line.substring(6), checked: false});
-              }
-            }
-          }
-        };
-        reader.readAsText(file);
-      }
-    };
-    input.click();
-  }
-
-  toggleTodoChecked(todo: TodoItem) {
-    todo.checked = !todo.checked;
   }
 
   getSetting(key: string) {

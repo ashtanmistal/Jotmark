@@ -11,21 +11,21 @@
   scale: 94%;
 }
 
-/*add a media query to the note card; if screen is small allow a note to be 100% width*/
+/*add a media query to the service card; if screen is small allow a service to be 100% width*/
 @media (max-width: 768px) {
   .note-card {
     width: 100%;
   }
 }
 
-/* if it is slightly larger than 768px, allow the note to be 50% width */
+/* if it is slightly larger than 768px, allow the service to be 50% width */
 @media (min-width: 768px) {
   .note-card {
     max-width: 47%;
   }
 }
 
-/* if it is slightly larger than 992px, allow the note to be 33% width */
+/* if it is slightly larger than 992px, allow the service to be 33% width */
 @media (min-width: 992px) {
   .note-card {
     max-width: 30%;
@@ -37,7 +37,7 @@
   /* wait 0.1s before starting the animation */
   /*transition-delay: 0.1s;*/
   background-color: #ddd;
-  /* hide the note while it is being dragged */
+  /* hide the service while it is being dragged */
   display: none;
 }
 
@@ -64,7 +64,7 @@
 }
 
 .main-ui {
-  /* right now the header is blocking off the top of the note cards */
+  /* right now the header is blocking off the top of the service cards */
   /* add some padding to the top of the main ui */
   padding-top: 65px;
 }
