@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, HostListener } from '@angular/core';
 import {Note} from './service/note';
 import {MatDialog} from "@angular/material/dialog";
 import {DialogComponent} from "./dialog/dialog.component";
@@ -43,6 +43,15 @@ export class AppComponent {
   todos: TodoItem[] = [];
   constructor(private dialog: MatDialog, private converter: LatexService, private settings: SettingsService, private noteservice: NoteService, private saveLoadService: SaveloadService) {}
 
+  @HostListener('window:beforeunload', ['$event'])
+  public beforeunloadHandler(event: any) {
+    // check if any notes are unsaved
+    for (let i = 0; i < this.notes.length; i++) {
+      if (!this.notes[i].saved) {
+        event.returnValue = "You have unsaved notes. Are you sure you want to leave?";
+      }
+    }
+  }
   openPreferencesMenu() {
     // TODO make a component for the Preferences menu
 
