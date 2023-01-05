@@ -56,7 +56,7 @@ export class NoteService {
 
   editNoteName(note: Note) {
     let userInput = this.dialog.open(DialogComponent, {
-      data: { title: "Enter a new name for the service", message: note.name, type: "prompt" }
+      data: { title: "Enter a new name for the note", message: note.name, type: "prompt" }
     });
     userInput.afterClosed().subscribe(name => {
       if (name != null) {
@@ -64,7 +64,7 @@ export class NoteService {
         if (name.match(/^[a-zA-Z0-9_ \-\.]+$/)) {
           if (name.length > 100) {
             this.dialog.open(DialogComponent, {
-              data: { title: "Error", message: "The name of the service cannot be longer than 100 characters.", type: "alert" }
+              data: { title: "Error", message: "The name of the note cannot be longer than 100 characters.", type: "alert" }
             });
           } else {
             note.name = name;

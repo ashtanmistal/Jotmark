@@ -50,15 +50,3 @@
 <ng-container *ngIf="data.type=== 'editor'">
   <app-editor (close)="closeDialog(note)" [note]="note"></app-editor>
 </ng-container>
-
-<ng-container *ngIf="data.type=== 'Rexfro'">
-  <mat-card style="background: transparent; box-shadow: none;">
-    <!-- include app-rexfro -->
-    <app-rexfro (close)="closeDialog(null)" [notes]="notes"></app-rexfro>
-    <mat-card-actions>
-      <button mat-button (click)="closeDialog(null)">Cancel</button>
-      <button mat-button (click)="closeDialog(notes)">Ok</button>
-    </mat-card-actions>
-  </mat-card>
-</ng-container>
-
