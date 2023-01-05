@@ -50,7 +50,7 @@
       <button mat-menu-item (click)="openHelpMenu()">Help</button>
     </mat-menu>
     <span>Jotmark</span>
-    <mat-form-field class="search-bar" style="width: content-box; height: inherit; margin: 5px 10px; opacity: 0.5">
+    <mat-form-field class="search-bar" appearance="outline" style="height: inherit; width: 50%; margin: 10px auto auto auto; opacity: 70%; display: flex; justify-content: center; align-items: center;">
       <input matInput placeholder="Search" [(ngModel)]="searchTerm">
     </mat-form-field>
     <button mat-icon-button [matMenuTriggerFor]="tagMenu">
