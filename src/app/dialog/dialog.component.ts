@@ -1,6 +1,6 @@
-import {Component, Inject, Input} from '@angular/core';
+import {Component, Inject} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import {Note} from "../note/note";
+import {Note} from "../service/note";
 
 @Component({
   selector: 'app-dialog',

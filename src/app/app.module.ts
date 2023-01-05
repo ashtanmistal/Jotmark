@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
 import { AppComponent } from './app.component';
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {MatButtonModule} from "@angular/material/button";
@@ -10,7 +9,6 @@ import {MatCardModule} from "@angular/material/card";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { EditorComponent } from './editor/editor.component';
 import { SettingsComponent } from './settings/settings.component';
-import { NoteComponent } from './note/note.component';
 import {MarkdownModule} from "ngx-markdown";
 import { AppRoutingModule } from './app-routing.module';
 import {FormsModule} from "@angular/forms";
@@ -22,7 +20,6 @@ import {MatListModule} from "@angular/material/list";
 import {NgxColorsModule} from "ngx-colors";
 import { DialogComponent } from './dialog/dialog.component';
 import {MatDialogModule} from "@angular/material/dialog";
-import { RexfroComponent } from './rexfro/rexfro.component';
 import {MatTableModule} from "@angular/material/table";
 import {HttpClientModule} from "@angular/common/http";
 import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
@@ -33,9 +30,7 @@ import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
     AppComponent,
     EditorComponent,
     SettingsComponent,
-    NoteComponent,
     DialogComponent,
-    RexfroComponent,
   ],
   imports: [
     BrowserModule,
