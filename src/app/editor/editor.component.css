@@ -35,3 +35,25 @@
   /*box-shadow: #c4c4c4 0 0 20px;*/
 }
 
+
+/* mobile only */
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+  .desktop-only {
+    display: none;
+  }
+}
+
+/* desktop only */
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+  .desktop-only {
+    display: block;
+  }
+}
+
+

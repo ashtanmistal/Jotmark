@@ -14,6 +14,7 @@ import {SaveloadService} from "../service/saveload.service";
 export class EditorComponent {
   @Input() note: Note | null = null;
   showNote = false;
+  mobilePreview = false; // whether the user is viewing the editor or the preview on a mobile device
 
   constructor(private route: ActivatedRoute, private settings: SettingsService, private noteService: NoteService, private saveLoadService: SaveloadService) {
     this.route.params.subscribe(params => {
@@ -67,5 +68,9 @@ export class EditorComponent {
   }
   getSetting(key: string) {
     return this.settings.get(key);
+  }
+
+  togglePreview() {
+    this.mobilePreview = !this.mobilePreview;
   }
 }
