@@ -13,7 +13,7 @@
     </div>
     </mat-card-subtitle>
   </div>
-  <div class="card-container" style="align-content: center; display: flex; flex-direction: row; justify-content: center; border-radius: 0" (click)="onEditorClick($event)" (keyup)="onEditorKeyUp($event)">
+  <div class="card-container" style="align-content: center; display: flex; flex-direction: row; justify-content: center; border-radius: 0">
     <mat-card class="editor-container" style="border-radius: 0; height: inherit">
       <mat-form-field appearance="outline" style="flex: 1; height: inherit" [ngStyle]="{'background-color': getSetting('themeBackground')}">
         <textarea matInput id="editor" name="editor" [(ngModel)]="note.content" style="height: 72vh; width: 100%; overflow: auto; resize: none; z-index: auto;" (keydown)="onTextAreaKeyDown($event)" [ngStyle]="{'font-size': getSetting('editorFontSize') + 'px', 'font-family': getSetting('editorFontFamily')}"></textarea>

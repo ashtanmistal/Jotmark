@@ -1,8 +1,5 @@
 import {Component} from '@angular/core';
 import {Note} from './note/note';
-import {marked} from 'marked';
-import katex from 'katex';
-import {DomSanitizer} from "@angular/platform-browser";
 import {Router} from '@angular/router';
 import FileSaver from 'file-saver';
 import {MatDialog} from "@angular/material/dialog";
@@ -12,6 +9,15 @@ import { HttpClient } from "@angular/common/http";
 import { LatexService } from './latex.service';
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
 import {SettingsService} from "./settings.service";
+import {NoteService} from "./note/note.service";
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+import { environment } from "../environments/environment";
+// Initialize Firebase
+const firebaseConfig = environment.firebaseConfig;
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 class TodoItem {
   // each TodoItem has a name, a boolean for whether it is checked, and an array of TodoItems for its children (basically an arbitrary tree)
@@ -39,7 +45,7 @@ export class AppComponent {
   isDragging: boolean = false;
   pinnedNotes: Note[] = [];
   todos: TodoItem[] = [];
-  constructor(private sanitizer: DomSanitizer, private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService, private settings: SettingsService) {}
+  constructor(private router: Router, private dialog: MatDialog, private http: HttpClient, private converter: LatexService, private settings: SettingsService, private noteservice: NoteService) {}
 
   openPreferencesMenu() {
     // TODO make a component for the Preferences menu
@@ -177,18 +183,6 @@ export class AppComponent {
       this.notes = [];
     }
   }
-  appearanceMenu() {
-    // open the appearance menu
-    // this is a subset of the Preferences menu
-    // basically it opens the Preferences menu with the appearance tab selected, and that's it
-    // TODO: implement appearance menu -- do this once the Preferences menu is implemented
-  }
-
-  toggleFullScreen() {
-    // toggle full screen mode
-    // TODO implement this function
-    // pretty sure we can just have it write F11 or something simple like that
-  }
 
   selectNote(note: Note) {
     this.selectedNote = note;
@@ -206,22 +200,7 @@ export class AppComponent {
 
   parseAndRender(content: string) {
     // parse the content as Markdown
-    let html = marked(content);
-
-    // get $$ ... $$ equations
-    html = html.replace(/\$\$([^]*?)\$\$/g, (match, p1) => {
-      return katex.renderToString(p1, {displayMode: true});
-    });
-    try {
-      html = html.replace(/\$([^]*?)\$/g, (match, p1) => {
-        let newHtml = katex.renderToString(p1, {displayMode: false});
-        return `${newHtml}`;
-      });
-    } catch (e) {
-      console.log(e);
-      // don't replace anything
-    }
-    return this.sanitizer.bypassSecurityTrustHtml(html);
+    return this.noteservice.parseAndRender(content);
   }
 
   handleNoteClick(note: Note) {
@@ -280,7 +259,6 @@ export class AppComponent {
       note.tags.push(tag);
       note.saved = false;
     }
-
   }
 
   filterByTag(tag: string) {
@@ -310,11 +288,8 @@ export class AppComponent {
   searchNotes(notes: Note[]) {
     // get all the pinned notes - these should always be at the top
     let pinnedNotes = notes.filter(note => note.pinned);
-    // get all the unpinned notes
     let unpinnedNotes = notes.filter(note => !note.pinned);
     notes = pinnedNotes.concat(unpinnedNotes);
-    // filter the notes by any tags selected
-    // make a copy of the notes
     let filteredNotes = notes.slice();
     if (this.selectedTags.length !== 0) {
       for (let i = 0; i < filteredNotes.length; i++) {
@@ -327,8 +302,6 @@ export class AppComponent {
         }
       }
     }
-    // search the notes for the given query in the title and content
-    // query is this.searchTerm
     if (this.searchTerm === "") {
       return filteredNotes;
     } else {
@@ -340,7 +313,6 @@ export class AppComponent {
   }
 
   toggleTag(tag: string) {
-    // toggle the given tag in the selectedTags array
     if (this.selectedTags.includes(tag)) {
       this.selectedTags.splice(this.selectedTags.indexOf(tag), 1);
     } else {
@@ -501,9 +473,5 @@ export class AppComponent {
 
   getSetting(key: string) {
     return this.settings.get(key);
-  }
-
-  setSetting(key: string, value: any) {
-    this.settings.set(key, value);
   }
 }

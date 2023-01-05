@@ -35,13 +35,6 @@
       <mat-menu #editMenu="matMenu">
         <button mat-menu-item (click)="openRexfro(this.notes)">Rexfro Find and Replace</button>
       </mat-menu>
-      <button mat-menu-item [matMenuTriggerFor]="viewMenu">View</button>
-      <mat-menu #viewMenu="matMenu">
-
-        <button mat-menu-item (click)="appearanceMenu()">Appearance</button>
-        <button mat-menu-item (click)="toggleFullScreen()">Toggle Full Screen</button>
-        <!-- TODO make the view menu - all of these actions need to be implemented. Add any additional actions you want to the menu. -->
-      </mat-menu>
       <button mat-menu-item [matMenuTriggerFor]="tagOptions">Tags</button>
       <mat-menu #tagOptions="matMenu">
         <ng-container *ngIf="totalTags.length === 0">
