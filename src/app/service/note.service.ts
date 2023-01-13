@@ -31,7 +31,9 @@ export class NoteService {
       console.log(e);
     }
     // fix the amp; error
-    html = html.replace(/&amp;/g, '&');
+    html = html.replace(/&amp;/g, '&'); // TODO this didn't work
+    // links should open in a new tab
+    html = html.replace(/<a href/g, '<a target="_blank" href');
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
