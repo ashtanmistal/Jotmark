@@ -45,6 +45,17 @@ export class EditorComponent {
           textArea.selectionEnd = cursorPosition + spaces.length + 1;
           $event.preventDefault();
         }
+      } else if ($event.key === 'Tab') {
+        // indent the next line if the user presses tab
+        const textArea = $event.target as HTMLTextAreaElement;
+        const textAreaValue = textArea.value;
+        const cursorPosition = textArea.selectionStart;
+        const textBeforeCursor = textAreaValue.substring(0, cursorPosition);
+        const textAfterCursor = textAreaValue.substring(cursorPosition);
+        textArea.value = textBeforeCursor + '  ' + textAfterCursor;
+        textArea.selectionStart = cursorPosition + 2;
+        textArea.selectionEnd = cursorPosition + 2;
+        $event.preventDefault();
       }
       this.note.saved = false;
       this.note.lastModified = Date.now();
