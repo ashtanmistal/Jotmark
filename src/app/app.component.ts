@@ -15,11 +15,6 @@ const firebaseConfig = environment.firebaseConfig;
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-class TodoItem {
-  // each TodoItem has a name, a boolean for whether it is checked, and an array of TodoItems for its children (basically an arbitrary tree)
-  constructor(public name: string, public checked: boolean) {}
-}
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -40,7 +35,6 @@ export class AppComponent {
   defaultColor: string = "#ffffff";
   isDragging: boolean = false;
   pinnedNotes: Note[] = [];
-  todos: TodoItem[] = [];
   constructor(private dialog: MatDialog, private converter: LatexService, private settings: SettingsService, private noteservice: NoteService, private saveLoadService: SaveloadService) {}
 
   @HostListener('window:beforeunload', ['$event'])
@@ -67,7 +61,7 @@ export class AppComponent {
     if (file.name.endsWith(".md")) {
       const reader = new FileReader();
       reader.onload = () => {
-        const text = reader.result;
+        let text = reader.result;
         if (typeof text === "string") {
           // how do I get the relative path of the file?
           let relativePath = file.webkitRelativePath;
@@ -81,14 +75,17 @@ export class AppComponent {
             for (let i = 0; i < tagArray.length; i++) {
               let tag = tagArray[i].substring(0, tagArray[i].indexOf(", "));
               let color = tagArray[i].substring(tagArray[i].indexOf(", ") + 2);
-              if (!this.totalTags.includes(tag)) {
-                this.totalTags.push(tag);
-                this.tagColors.push(color);
+              // if the tag is not null
+              if (tag !== "" && color !== "") {
+                if (!this.totalTags.includes(tag)) {
+                  this.totalTags.push(tag);
+                  this.tagColors.push(color);
+                }
+                tags.push(tag);
               }
-              tags.push(tag);
             }
-            // remove the first line
-            text.substring(text.indexOf("\n") + 1);
+            // get rid of the first line
+            text = text.substring(text.indexOf("\n") + 1);
           }
           // this.notes.push({name: file.name.slice(0, -3), content: text, external: true, saved: true});
           this.notes.push({name: file.name.slice(0, -3), path: relativePath, tags: tags, content: text, external: true, saved: true, lastModified: file.lastModified, images: [], pinned: false});
@@ -99,18 +96,17 @@ export class AppComponent {
     }
   }
 
-  openDirectory() {
+  async openDirectory() {
     const input = document.createElement('input');
     input.type = 'file';
     input.webkitdirectory = true;
 
-    input.addEventListener('change', () => {
+    input.addEventListener('change', async () => {
       if (input.files == null) {
         return;
       }
       this.path = input.files[0].name;
-      // clear all notes that are external, i.e. from a different directory
-      this.notes = this.notes.filter(note => !note.external);
+
       for (let i = 0; i < input.files.length; i++) {
         // add the markdown file
         this.addMarkdownFile(input.files[i]);
@@ -127,6 +123,9 @@ export class AppComponent {
       }
     });
     input.click();
+    if (this.sortParameter != "path") {
+      this.sortBy(this.sortParameter); // if another sorting method was selected then we want to sort the notes accordingly
+    }
   }
 
   newNote() {
@@ -224,7 +223,7 @@ export class AppComponent {
   sortBy(sortParameter: string){
     // sort notes by given parameter
     // if parameter selected is already set, return to default order
-    if(sortParameter == this.sortParameter) {
+    if (sortParameter == this.sortParameter) {
       this.notes.sort((note1, note2) => note1.path.localeCompare(note2.path));
       this.sortParameter = "path";
     } else {

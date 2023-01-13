@@ -16,16 +16,22 @@ export class NoteService {
   parseAndRender(content: string) {
     let html = marked(content);
     html = html.replace(/\$\$([^]*?)\$\$/g, (match, p1) => {
-      return katex.renderToString(p1, {displayMode: true});
+      // return katex.renderToString(p1, {displayMode: true});
+      // include it in a <span class="katex"> so that it can be styled
+      return `<span class="katex">${katex.renderToString(p1, {displayMode: true})}</span>`;
     });
     try {
       html = html.replace(/\$([^]*?)\$/g, (match, p1) => {
         let newHtml = katex.renderToString(p1, {displayMode: false});
-        return `${newHtml}`;
+        // include it in a <span class="katex"> so that it can be styled
+        return `<span class="katex">${newHtml}</span>`;
+        // return `${newHtml}`;
       });
     } catch (e) {
       console.log(e);
     }
+    // fix the amp; error
+    html = html.replace(/&amp;/g, '&');
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 

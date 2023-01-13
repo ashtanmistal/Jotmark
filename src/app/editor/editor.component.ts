@@ -14,7 +14,7 @@ import {SaveloadService} from "../service/saveload.service";
 export class EditorComponent {
   @Input() note: Note | null = null;
   showNote = false;
-  mobilePreview = false; // whether the user is viewing the editor or the preview on a mobile device
+  showPreview = false; // whether the user is viewing the editor or the preview on a mobile device
 
   constructor(private route: ActivatedRoute, private settings: SettingsService, private noteService: NoteService, private saveLoadService: SaveloadService) {
     this.route.params.subscribe(params => {
@@ -27,8 +27,25 @@ export class EditorComponent {
     return this.noteService.parseAndRender(content);
   }
 
-  onTextAreaKeyDown() {
+  onTextAreaKeyDown($event: KeyboardEvent) {
     if (this.note) {
+      if ($event.key === 'Enter') {
+        // indent the next line if the user presses enter according to the indent of the previous line
+        const textArea = $event.target as HTMLTextAreaElement;
+        const textAreaValue = textArea.value;
+        const cursorPosition = textArea.selectionStart;
+        const textBeforeCursor = textAreaValue.substring(0, cursorPosition);
+        const textAfterCursor = textAreaValue.substring(cursorPosition);
+        const linesBeforeCursor = textBeforeCursor.split('\n');
+        const previousLine = linesBeforeCursor[linesBeforeCursor.length - 1];
+        const spaces = previousLine.match(/^(\s*)/)?.[1];
+        if (spaces) {
+          textArea.value = textBeforeCursor + '\n' + spaces + textAfterCursor;
+          textArea.selectionStart = cursorPosition + spaces.length + 1;
+          textArea.selectionEnd = cursorPosition + spaces.length + 1;
+          $event.preventDefault();
+        }
+      }
       this.note.saved = false;
       this.note.lastModified = Date.now();
     }
@@ -71,6 +88,6 @@ export class EditorComponent {
   }
 
   togglePreview() {
-    this.mobilePreview = !this.mobilePreview;
+    this.showPreview = !this.showPreview;
   }
 }
