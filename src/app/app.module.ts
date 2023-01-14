@@ -23,6 +23,10 @@ import {MatDialogModule} from "@angular/material/dialog";
 import {MatTableModule} from "@angular/material/table";
 import {HttpClientModule} from "@angular/common/http";
 import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
+import {MatSidenavModule} from "@angular/material/sidenav";
+import {MatTabsModule} from "@angular/material/tabs";
+import {MatGridListModule} from "@angular/material/grid-list";
+import {MatSlideToggleModule} from "@angular/material/slide-toggle";
 
 
 @NgModule({
@@ -55,6 +59,10 @@ import {CdkDrag, CdkDropList} from "@angular/cdk/drag-drop";
     CdkDropList,
     CdkDrag,
     MarkdownModule.forRoot(),
+    MatSidenavModule,
+    MatTabsModule,
+    MatGridListModule,
+    MatSlideToggleModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

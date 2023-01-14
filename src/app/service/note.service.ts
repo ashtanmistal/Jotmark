@@ -34,6 +34,12 @@ export class NoteService {
     html = html.replace(/&amp;/g, '&'); // TODO this didn't work
     // links should open in a new tab
     html = html.replace(/<a href/g, '<a target="_blank" href');
+
+    // scrub XSS attacks
+    let temp  = this.sanitizer.sanitize(0, html);
+    if (temp != null) {
+      html = temp;
+    }
     return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 

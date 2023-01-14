@@ -1,1 +1,112 @@
-<p>settings works!</p>
+<!-- this is a div that should have the settings component in it -->
+<!-- should be designed using material design -->
+<!-- left side should be a scrollable list of all the settings pages -->
+<!-- right side should be the settings page -->
+<!-- settings panes: editor, theme, import/export, etc. -->
+
+<div class="settings">
+  <mat-sidenav-container class="settings-container">
+    <mat-sidenav-content>
+      <div class="settings-content">
+        <h1>Settings</h1>
+        <mat-tab-group>
+          <mat-tab label="Editor">
+            <mat-grid-list cols="3">
+              <mat-grid-tile>
+            <mat-form-field>
+              <mat-label>Font Size</mat-label>
+              <input matInput type="number" placeholder="Font Size" [value]="getSetting('editorFontSize')" (input)="setSetting('editorFontSize', $event)">
+            </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile>
+            <mat-form-field>
+              <mat-label>Font Family</mat-label>
+              <input matInput type="text" placeholder="Font Family" [value]="getSetting('editorFontFamily')" (input)="setSetting('editorFontFamily', $event)">
+            </mat-form-field>
+              </mat-grid-tile>
+            </mat-grid-list>
+          </mat-tab>
+          <mat-tab label="Theme">
+            <!-- add a dark mode toggle -->
+            <mat-slide-toggle [checked]="getSetting('darkMode')" (change)="setDarkMode($event.checked)">Dark Mode</mat-slide-toggle>
+
+            <mat-grid-list cols="3">
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Primary Color</mat-label>
+                  <input matInput type="text" placeholder="Primary Color" [value]="getSetting('themePrimary')" (input)="setSetting('themePrimary', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Accent Color</mat-label>
+                  <input matInput type="text" placeholder="Accent Color" [value]="getSetting('themeAccent')" (input)="setSetting('themeAccent', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Tertiary Color</mat-label>
+                  <input matInput type="text" placeholder="Tertiary Color" [value]="getSetting('themeTertiary')" (input)="setSetting('themeTertiary', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Background Color</mat-label>
+                  <input matInput type="text" placeholder="Background Color" [value]="getSetting('themeBackground')" (input)="setSetting('themeBackground', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Alt Background Color</mat-label>
+                  <input matInput type="text" placeholder="Alternate Background Color" [value]="getSetting('themeBackgroundAlt')" (input)="setSetting('themeBackgroundAlt', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Text Color</mat-label>
+                  <input matInput type="text" placeholder="Text Color" [value]="getSetting('themeText')" (input)="setSetting('themeText', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Secondary Text Color</mat-label>
+                  <input matInput type="text" placeholder="Secondary Text Color" [value]="getSetting('themeSecondaryText')" (input)="setSetting('themeSecondaryText', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+            </mat-grid-list>
+          </mat-tab>
+
+          <mat-tab label="Preview">
+            <mat-grid-list cols="3">
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Font Size</mat-label>
+                  <input matInput type="number" placeholder="Font Size" [value]="getSetting('previewFontSize')" (input)="setSetting('previewFontSize', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Font Family</mat-label>
+                  <input matInput type="text" placeholder="Font Family" [value]="getSetting('previewFontFamily')" (input)="setSetting('previewFontFamily', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+              <mat-grid-tile>
+                <mat-form-field>
+                  <mat-label>Default Note Color</mat-label>
+                  <input matInput type="text" placeholder="Default Note Color" [value]="getSetting('defaultNoteColor')" (input)="setSetting('defaultNoteColor', $event)">
+                </mat-form-field>
+              </mat-grid-tile>
+            </mat-grid-list>
+          </mat-tab>
+          <mat-tab label="Import/Export">
+            <mat-form-field>
+              <mat-label>Settings</mat-label>
+              <textarea matInput placeholder="Settings" [(ngModel)]="rawsettings"></textarea>
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="saveSettings()">Save</button>
+          </mat-tab>
+        </mat-tab-group>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

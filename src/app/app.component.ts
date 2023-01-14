@@ -48,7 +48,7 @@ export class AppComponent {
   }
   openPreferencesMenu() {
     // TODO make a component for the Preferences menu
-
+    this.dialog.open(DialogComponent, {data: {type: "settings"}});
   }
 
   openHelpMenu() {
