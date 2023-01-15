@@ -27,6 +27,7 @@ import {MatSidenavModule} from "@angular/material/sidenav";
 import {MatTabsModule} from "@angular/material/tabs";
 import {MatGridListModule} from "@angular/material/grid-list";
 import {MatSlideToggleModule} from "@angular/material/slide-toggle";
+import { HelpPopupComponent } from './help-popup/help-popup.component';
 
 
 @NgModule({
@@ -35,6 +36,7 @@ import {MatSlideToggleModule} from "@angular/material/slide-toggle";
     EditorComponent,
     SettingsComponent,
     DialogComponent,
+    HelpPopupComponent,
   ],
   imports: [
     BrowserModule,

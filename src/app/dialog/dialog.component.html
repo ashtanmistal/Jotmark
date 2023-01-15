@@ -54,3 +54,8 @@
 <ng-container *ngIf="data.type=== 'settings'">
   <app-settings (close)="closeDialog(null)"></app-settings>
 </ng-container>
+
+
+<ng-container *ngIf"data.type=== 'help-popup'">
+  <app-help-popup (close)="closeDialog(null)"></app-help-popup>
+</ng-container>
